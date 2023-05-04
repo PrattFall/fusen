@@ -13,6 +13,27 @@ features you would expect:
     - You can even **delete** tasks
 - A reasonably fancy stylesheet
 
+## Notable Design Decisions
+
+- Using `pnpm` for package management
+- Using `parcel` for builds
+- Using `preact` for views
+- Using only `preact` hooks for state management with `useContext` and `useReducer`
+    - Probably a bad idea, but I wanted to try it
+- Using lists in the README for brevity
+
+## Getting Started
+
+Clone the repository, then run:
+
+```bash
+$ cd bboard
+$ pnpm i
+$ pnpx parcel index.html
+```
+
+You should be able to access the board by going to `localhost:1234`
+
 ## Expected Future Features
 
 - Actually being able to save data to local storage

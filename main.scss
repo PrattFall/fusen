@@ -1,0 +1,203 @@
+:root {
+  --spacing-base: 8px;
+  --column-size: 350px;
+
+  --font-family: Poppins, sans-serif;
+  --base-font-size: 18px;
+  --font-ratio: 1.33;
+
+  --color-main: #{lighten(blue, 20%)};
+
+  --color-base-bg: #222;
+  --color-base-text: #eee;
+
+  --color-column-bg: #444;
+  --color-column-text: #fff;
+
+  --color-task-bg: #{rgba(#000, 0)};
+  --color-task-border: #aaa;
+  --color-task-border--editing: var(--color-main);
+
+  --color-input-border: #aaa;
+  --color-input-border--focused: var(--color-main);
+  --color-input-bg: rgba(#fff, 0.1);
+
+  --color-button-bg: var(--color-main);
+  --color-button-border: var(--color-main);
+  --color-button-text: #fff;
+
+  --color-drag-1: #{rgba(#000, 0.1)};
+  --color-drag-2: #{rgba(#000, 0.25)};
+  --angle-drag: 30deg;
+}
+
+@mixin listless {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@function space($multiplier: 1) {
+  // avoid pointless multiplication
+  @if $multiplier == 1 {
+    @return var(--spacing-base);
+  }
+
+  @return calc(var(--spacing-base) * $multiplier);
+}
+
+@function font-ratio($multiplier: 0) {
+  @if $multiplier < 1 {
+    @return var(--base-font-size);
+  }
+
+  @return calc(var(--base-font-size) * (var(--font-ratio) * #{$multiplier}));
+}
+
+@for $i from 1 through 4 {
+  h#{$i}, .h#{$i} {
+    font-size: font-ratio(4 - $i);
+    font-weight: bold;
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-size: var(--base-font-size);
+  font-family: var(--font-family);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  color: var(--color-base-text);
+}
+
+input, button, textarea, label {
+  font-family: var(--font-family);
+}
+
+input, textarea {
+  border: none;
+  border-bottom: 1px solid var(--color-input-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-column-text);
+  margin-bottom: space();
+
+  &:focus {
+    outline: none;
+    border-bottom: 1px solid var(--color-input-border--focused);
+  }
+}
+
+.board,
+.column {
+  overflow: auto;
+  padding-bottom: space(2);
+
+  &__title {
+    margin: space(2);
+  }
+}
+
+.board__columns,
+.column__tasks {
+  @include listless;
+  display: flex;
+  flex-wrap: nowrap;
+  padding: 0 space(2);
+}
+
+.board {
+  background-color: var(--color-base-bg);
+  height: 100%;
+
+  &__columns {
+    align-items: flex-start;
+    gap: space(2);
+  }
+}
+
+.column {
+  background-color: var(--color-column-bg);
+  color: var(--color-column-text);
+  border-radius: 3px;
+  box-shadow: 0px 2px 5px rgba(#000, 0.1);
+  width: var(--column-size);
+  min-width: var(--column-size);
+
+  display: flex;
+  flex-direction: column;
+
+
+  &__tasks {
+    flex-direction: column;
+    gap: space();
+  }
+}
+
+.task {
+  border-radius: 3px;
+  border: 1px solid var(--color-task-border);
+  overflow: auto;
+
+  &__title,
+  &__description {
+    margin: space() space(2);
+    display: block;
+  }
+
+  &__bar {
+    display: flex;
+    margin-bottom: space();
+  }
+
+  &__drag-surface {
+    background: repeating-linear-gradient(
+      var(--angle-drag),
+      var(--color-drag-1),
+      var(--color-drag-1) 2px,
+      var(--color-drag-2) 2px,
+      var(--color-drag-2) 4px,
+    );
+    cursor: pointer;
+    flex-grow: 1;
+  }
+
+  &__remove-button {
+    cursor: pointer;
+  }
+}
+
+.view-task {
+  cursor: pointer;
+}
+
+.editable-task {
+  border-color: var(--color-task-border--editing);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: space(2);
+
+  .task {
+    &__title,
+    &__description {
+      display: block;
+    }
+  }
+}
+
+.board__add-column-button,
+.column__add-task-button {
+  background-color: var(--color-button-bg);
+  border-radius: 5px;
+  border: 1px solid var(--color-button-border);
+  color: var(--color-button-text);
+  cursor: pointer;
+  font-size: var(--base-font-size);
+  font-weight: bold;
+  margin: 0 space(2) space(2);
+  padding: space(0.5) space();
+}

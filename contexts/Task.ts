@@ -1,10 +1,11 @@
 import { createContext } from "preact";
-import { useReducer, Reducer } from "preact/hooks";
+import { useReducer, Reducer, useEffect } from "preact/hooks";
 import { html } from "htm/preact";
 
 import {
   ColumnId,
   IDeleteTaskOperation,
+  IInitTaskOperation,
   IMoveTaskOperation,
   INewTaskOperation,
   ITask,
@@ -26,6 +27,8 @@ const newTask = (columnId: ColumnId, position: number): ITask => ({
 
 export const TasksReducer: Reducer<ITask[], any> = (state: ITask[], action: ITaskOperation) => {
   switch (action.type) {
+    case TaskOperationType.Init:
+      return action.tasks;
     case TaskOperationType.New:
       return [newTask(action.columnId, state.length), ...state];
     case TaskOperationType.Update:
@@ -44,6 +47,10 @@ export const TasksReducer: Reducer<ITask[], any> = (state: ITask[], action: ITas
 };
 
 export const TaskActions = {
+  Init: (tasks: ITask[]): IInitTaskOperation => ({
+    type: TaskOperationType.Init,
+    tasks
+  }),
   New: (columnId: ColumnId): INewTaskOperation => ({
     type: TaskOperationType.New,
     columnId
@@ -68,6 +75,15 @@ export const TasksContext = createContext<[ITask[], (action: ITaskOperation) => 
 
 export const TasksProvider = (props: any) => {
   const [tasks, dispatchTasks] = useReducer(TasksReducer, []);
+
+  useEffect(() => {
+    const tasks = JSON.parse(window.localStorage.getItem("tasks"));
+    dispatchTasks(TaskActions.Init(tasks));
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   return html`
     <${TasksContext.Provider} value=${[tasks, dispatchTasks]}>

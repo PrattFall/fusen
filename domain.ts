@@ -20,10 +20,16 @@ export type ITask = {
 };
 
 export enum TaskOperationType {
+  Init,
   New,
   Update,
   Delete,
   Move
+}
+
+export type IInitTaskOperation = {
+  type: TaskOperationType.Init,
+  tasks: ITask[]
 }
 
 export type INewTaskOperation = {
@@ -49,7 +55,8 @@ export type IMoveTaskOperation = {
 }
 
 export type ITaskOperation =
-  INewTaskOperation
+  IInitTaskOperation
+  | INewTaskOperation
   | IUpdateTaskOperation
   | IDeleteTaskOperation
   | IMoveTaskOperation;
@@ -63,6 +70,7 @@ export type IColumn = {
 };
 
 export enum ColumnOperationType {
+  Init,
   New,
   Update,
   Delete,
@@ -91,11 +99,17 @@ export type IRepositionColumnOperation = {
   position: number
 }
 
+export type IInitColumnOperation = {
+  type: ColumnOperationType.Init,
+  columns: IColumn[],
+}
+
 export type IColumnOperation =
   INewColumnOperation
   | IUpdateColumnOperation
   | IDeleteColumnOperation
-  | IRepositionColumnOperation;
+  | IRepositionColumnOperation
+  | IInitColumnOperation;
 
 export type IBoard = {
   id: BoardId,

@@ -1,5 +1,5 @@
 import { createContext } from "preact";
-import { useReducer, Reducer } from "preact/hooks";
+import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
 import {
@@ -8,6 +8,7 @@ import {
   ColumnOperationType,
   IColumn,
   IDeleteColumnOperation,
+  IInitColumnOperation,
   INewColumnOperation,
   IUpdateColumnOperation,
   IRepositionColumnOperation,
@@ -25,6 +26,8 @@ const newColumn = (boardId: BoardId, position: number): IColumn => ({
 
 export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (state: IColumn[], action: any) => {
   switch (action.type) {
+    case ColumnOperationType.Init:
+      return action.columns
     case ColumnOperationType.New:
       return [newColumn(action.columnId, state.length), ...state];
     case ColumnOperationType.Update:
@@ -43,6 +46,10 @@ export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (state: ICol
 };
 
 export const ColumnActions = {
+  Init: (columns: IColumn[]): IInitColumnOperation => ({
+    type: ColumnOperationType.Init,
+    columns
+  }),
   New: (boardId: BoardId): INewColumnOperation => ({
     type: ColumnOperationType.New,
     boardId
@@ -67,6 +74,15 @@ export const ColumnsContext = createContext<[IColumn[], (action: any) => void]>(
 
 export const ColumnsProvider = (props: any) => {
   const [columns, dispatchColumns] = useReducer(ColumnsReducer, []);
+
+  useEffect(() => {
+    const columns = JSON.parse(window.localStorage.getItem("columns"));
+    dispatchColumns(ColumnActions.Init(columns || []));
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("columns", JSON.stringify(columns));
+  }, [columns]);
 
   return html`
     <${ColumnsContext.Provider} value=${[columns, dispatchColumns]}>

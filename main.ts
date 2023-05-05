@@ -9,12 +9,6 @@ import { Column } from "./components/Column";
 
 import { TasksProvider } from "./contexts/Task"
 
-// const TaskTag = ({ title, color }: ITaskTag) =>
-//   html`<div class="task-tag" style="background-color: ${color}">
-//     <span class="task-tag__title">${title}</span>
-//   </div>`;
-
-
 const Board = ({ id, title }: IBoard) => {
   const [getTitle, _setTitle] = useState(title);
   const [columns, dispatchColumns] = useContext(ColumnsContext);
@@ -33,9 +27,6 @@ const Board = ({ id, title }: IBoard) => {
     </ul>
   </div>`;
 }
-
-// const columnsContext = createContext();
-// const boardsContext = createContext();
 
 const App = () => {
   return html`

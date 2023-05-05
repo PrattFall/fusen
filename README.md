@@ -36,7 +36,7 @@ You should be able to access the board by going to `localhost:1234`
 
 ## Expected Future Features
 
-- Actually being able to save data to local storage
+- ~~Actually being able to save data to local storage~~
     - maybe a database
 - More than 1 board
 - Renaming boards

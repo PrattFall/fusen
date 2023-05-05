@@ -2,7 +2,7 @@
 
 Not a bulletin board, it's a local kanban board for personal projects!
 
-Currently still in progress, and has no local storage yet, but it has most other
+Currently still in progress, but it has most other
 features you would expect:
 
 - A board
@@ -12,6 +12,7 @@ features you would expect:
     - You can drag tasks _between_ those columns (if you want)
     - You can even **delete** tasks
 - A reasonably fancy stylesheet
+- Stores tasks locally using localstorage
 
 ## Notable Design Decisions
 

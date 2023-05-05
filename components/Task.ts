@@ -23,18 +23,9 @@ const EditableTask = ({ id, title, description }: ITask) => {
     dispatch(TaskActions.Update(id, { description: event.target.value }));
   };
 
-  const setDragData = (event: any) => {
-    event.dataTransfer.clearData();
-    event.dataTransfer.setData("text/plain", id);
-  };
 
   return html`
-  <li
-    class="task editable-task task-${id}"
-    ref=${outsideRef}
-    draggable="true"
-    onDragStart=${setDragData}
-  >
+  <li class="task editable-task task-${id}" ref=${outsideRef}>
     <div class="task__bar">
       <div class="task__drag-surface"></div>
       <button class="task__remove-button" onClick=${removeClicked}>
@@ -61,8 +52,17 @@ const ViewTask = ({ id, title, description }: any) => {
     dispatch(TaskActions.Update(id, { editing: true }));
   };
 
+  const setDragData = (event: any) => {
+    event.dataTransfer.clearData();
+    event.dataTransfer.setData("text/plain", id);
+  };
+
   return html`
-    <li class="task view-task task-${id}" onClick=${makeEditable}>
+    <li
+      class="task view-task task-${id}" onClick=${makeEditable}
+      draggable="true"
+      onDragStart=${setDragData}
+    >
       <h3 class="task__title">${title}</h3>
       <small class="task__description">${description}</small>
     </li>

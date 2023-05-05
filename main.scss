@@ -85,6 +85,7 @@ input, textarea {
   background-color: var(--color-input-bg);
   color: var(--color-column-text);
   margin-bottom: space();
+  padding: 0;
 
   &:focus {
     outline: none;

@@ -1,41 +1,29 @@
 import { render } from "preact";
-import { useState, useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { IBoard } from "./domain";
-
-import { ColumnActions, ColumnsContext, ColumnsProvider } from "./contexts/Column";
-import { Column } from "./components/Column";
-
+import { ColumnsProvider } from "./contexts/Column";
 import { TasksProvider } from "./contexts/Task"
 
-const Board = ({ id, title }: IBoard) => {
-  const [getTitle, _setTitle] = useState(title);
-  const [columns, dispatchColumns] = useContext(ColumnsContext);
+import { Board } from "./components/Board";
 
-  const addColumn = () => {
-    dispatchColumns(ColumnActions.New(id))
-  };
+const Page = () => html`
+  <header role="banner">
+    <div class="site-logo h2">
+      BBoard
+    </div>
+  </header>
+  <main role="main">
+    <${Board} title="New Board" />
+  </main>
+`;
 
-  return html`<div class="board">
-    <h1 class="board__title">${getTitle}</h1>
-    <button class="board__add-column-button" onClick=${addColumn}>
-      + Add Column
-    </button>
-    <ul class="board__columns">
-      ${columns.map(c => html`<${Column} key=${c.id} ...${c} />`)}
-    </ul>
-  </div>`;
-}
-
-const App = () => {
-  return html`
-    <${ColumnsProvider}>
-      <${TasksProvider}>
-        <${Board} title="New Board" columns=${[]} tags=${{}} />
-      </>
+// Insanity goes here
+const App = () => html`
+  <${ColumnsProvider}>
+    <${TasksProvider}>
+      <${Page} />
     </>
-  `;
-};
+  </>
+`;
 
 render(html`<${App} />`, document.body);

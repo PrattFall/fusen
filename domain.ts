@@ -51,7 +51,8 @@ export type IDeleteTaskOperation = {
 export type IMoveTaskOperation = {
   type: TaskOperationType.Move,
   id: TaskId,
-  columnId: ColumnId
+  columnId: ColumnId,
+  position: number
 }
 
 export type ITaskOperation =

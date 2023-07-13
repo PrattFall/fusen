@@ -38,11 +38,6 @@
 }
 
 @function space($multiplier: 1) {
-  // avoid pointless multiplication
-  @if $multiplier == 1 {
-    @return var(--spacing-base);
-  }
-
   @return calc(var(--spacing-base) * $multiplier);
 }
 
@@ -66,13 +61,17 @@
 }
 
 html, body {
-  font-size: var(--base-font-size);
+  color: var(--color-base-text);
   font-family: var(--font-family);
+  font-size: var(--base-font-size);
   height: 100%;
   margin: 0;
   padding: 0;
   width: 100%;
-  color: var(--color-base-text);
+}
+
+body {
+  background-color: var(--color-base-bg);
 }
 
 input, button, textarea, label {
@@ -93,6 +92,25 @@ input, textarea {
   }
 }
 
+.action-bar {
+  @include listless;
+
+  display: flex;
+  flex-direction: row;
+  padding: space();
+
+  &.draggable {
+    background: repeating-linear-gradient(
+      var(--angle-drag),
+      var(--color-drag-1),
+      var(--color-drag-1) 2px,
+      var(--color-drag-2) 2px,
+      var(--color-drag-2) 4px,
+    );
+    cursor: pointer;
+  }
+}
+
 .board,
 .column {
   overflow: auto;
@@ -106,13 +124,13 @@ input, textarea {
 .board__columns,
 .column__tasks {
   @include listless;
+
   display: flex;
   flex-wrap: nowrap;
   padding: 0 space(2);
 }
 
 .board {
-  background-color: var(--color-base-bg);
   height: 100%;
 
   &__columns {
@@ -123,15 +141,13 @@ input, textarea {
 
 .column {
   background-color: var(--color-column-bg);
-  color: var(--color-column-text);
   border-radius: 3px;
   box-shadow: 0px 2px 5px rgba(#000, 0.1);
-  width: var(--column-size);
-  min-width: var(--column-size);
-
+  color: var(--color-column-text);
   display: flex;
   flex-direction: column;
-
+  min-width: var(--column-size);
+  width: var(--column-size);
 
   &__tasks {
     flex-direction: column;
@@ -150,55 +166,64 @@ input, textarea {
     display: block;
   }
 
-  &__bar {
-    display: flex;
-    margin-bottom: space();
-  }
-
-  &__drag-surface {
-    background: repeating-linear-gradient(
-      var(--angle-drag),
-      var(--color-drag-1),
-      var(--color-drag-1) 2px,
-      var(--color-drag-2) 2px,
-      var(--color-drag-2) 4px,
-    );
-    cursor: pointer;
-    flex-grow: 1;
-  }
-
   &__remove-button {
     cursor: pointer;
   }
 }
 
-.view-task {
-  cursor: pointer;
-}
-
-.editable-task {
-  border-color: var(--color-task-border--editing);
-  display: flex;
-  flex-direction: column;
-  padding-bottom: space(2);
-
-  .task {
-    &__title,
-    &__description {
-      display: block;
-    }
+@keyframes pop-in {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
   }
 }
 
-.board__add-column-button,
-.column__add-task-button {
+.task {
+  &__title,
+  &__description {
+    display: block;
+  }
+
+  &.view-task {
+    animation: pop-in .2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    transition: background-color .3s ease-in-out;
+
+    &:hover {
+      background-color: rgba(purple, 0.1);
+      transition: background-color .1s ease-in-out;
+    }
+  }
+
+  &.editable-task {
+    border-color: var(--color-task-border--editing);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: space(2);
+  }
+}
+
+
+button,
+.button {
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: var(--base-font-size);
+  padding: space(0.5) space();
+}
+
+.add-button {
   background-color: var(--color-button-bg);
-  border-radius: 5px;
   border: 1px solid var(--color-button-border);
   color: var(--color-button-text);
-  cursor: pointer;
-  font-size: var(--base-font-size);
-  font-weight: bold;
   margin: 0 space(2) space(2);
-  padding: space(0.5) space();
+}
+
+.remove-button {
+  background-color: transparent;
+  border: 1px solid var(--color-button-border);
+  color: var(--color-button-text);
 }

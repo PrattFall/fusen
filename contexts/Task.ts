@@ -14,7 +14,7 @@ import {
   TaskId,
   TaskOperationType,
 } from "../domain";
-import { makeUniqueId } from "../lib";
+import { makeUniqueId, repositionTask } from "../lib";
 
 const newTask = (columnId: ColumnId, position: number): ITask => ({
   id: makeUniqueId(),
@@ -25,7 +25,10 @@ const newTask = (columnId: ColumnId, position: number): ITask => ({
   position,
 });
 
-export const TasksReducer: Reducer<ITask[], any> = (state: ITask[], action: ITaskOperation) => {
+export const TasksReducer: Reducer<ITask[], ITaskOperation> = (
+  state: ITask[],
+  action: ITaskOperation
+) => {
   switch (action.type) {
     case TaskOperationType.Init:
       return action.tasks;
@@ -40,7 +43,7 @@ export const TasksReducer: Reducer<ITask[], any> = (state: ITask[], action: ITas
     case TaskOperationType.Delete:
       return state.filter(task => task.id !== action.id);
     case TaskOperationType.Move:
-      return state.map((t) => t.id === action.id ? { ...t, columnId: action.columnId } : t);
+      return repositionTask(state, action.id, action.columnId, action.position)
     default:
       throw new Error(`Unknown Task Operation: ${action}`);
   }
@@ -64,14 +67,16 @@ export const TaskActions = {
     type: TaskOperationType.Delete,
     id
   }),
-  Move: (id: TaskId, columnId: ColumnId): IMoveTaskOperation => ({
+  Move: (id: TaskId, columnId: ColumnId, position: number): IMoveTaskOperation => ({
     type: TaskOperationType.Move,
     id,
-    columnId
+    columnId,
+    position
   })
 };
 
-export const TasksContext = createContext<[ITask[], (action: ITaskOperation) => void]>([[], null]);
+export const TasksContext =
+  createContext<[ITask[], (action: ITaskOperation) => void]>([[], null]);
 
 export const TasksProvider = (props: any) => {
   const [tasks, dispatchTasks] = useReducer(TasksReducer, []);

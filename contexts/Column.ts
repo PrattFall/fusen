@@ -14,6 +14,7 @@ import {
   IRepositionColumnOperation,
   IColumnOperation
 } from "../domain";
+
 import { makeUniqueId } from "../lib";
 
 const newColumn = (boardId: BoardId, position: number): IColumn => ({
@@ -24,12 +25,15 @@ const newColumn = (boardId: BoardId, position: number): IColumn => ({
   position,
 });
 
-export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (state: IColumn[], action: any) => {
+export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (
+  state: IColumn[],
+  action: IColumnOperation
+) => {
   switch (action.type) {
     case ColumnOperationType.Init:
       return action.columns
     case ColumnOperationType.New:
-      return [newColumn(action.columnId, state.length), ...state];
+      return [newColumn(action.boardId, state.length), ...state];
     case ColumnOperationType.Update:
       return state.map(
         (column: IColumn) => column.id === action.id
@@ -39,7 +43,9 @@ export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (state: ICol
     case ColumnOperationType.Delete:
       return state.filter(column => column.id !== action.id);
     case ColumnOperationType.Reposition:
-      return state.map((t) => t.id === action.id ? { ...t, position: action.position } : t);
+      return state.map(
+        (t) => t.id === action.id ? { ...t, position: action.position } : t
+      );
     default:
       throw new Error(`Unknown Column Operation: ${action}`);
   }
@@ -70,7 +76,8 @@ export const ColumnActions = {
   })
 };
 
-export const ColumnsContext = createContext<[IColumn[], (action: any) => void]>([[], null]);
+export const ColumnsContext =
+  createContext<[IColumn[], (action: IColumnOperation) => void]>([[], null]);
 
 export const ColumnsProvider = (props: any) => {
   const [columns, dispatchColumns] = useReducer(ColumnsReducer, []);
@@ -85,7 +92,7 @@ export const ColumnsProvider = (props: any) => {
   }, [columns]);
 
   return html`
-    <${ColumnsContext.Provider} value=${[columns, dispatchColumns]}>
+    <${ColumnsContext.Provider} value=${[columns, dispatchColumns]} ...${props}>
       ${props.children}
     </>
   `;

@@ -11,6 +11,7 @@ features you would expect:
 - Tasks in those columns
     - You can drag tasks _between_ those columns (if you want)
     - You can even **delete** tasks
+    - Reordering tasks in and between columns
 - A reasonably fancy stylesheet
 - Stores tasks locally using localstorage
 

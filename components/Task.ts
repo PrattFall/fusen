@@ -1,8 +1,12 @@
-import { useContext, useEffect, useState } from "preact/hooks";
+import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
+
 import { useOutsideClick } from "../lib";
 import { ITask } from "../domain";
+
 import { TaskActions, TasksContext } from "../contexts/Task";
+import { ActionBar } from "./ActionBar";
+import { RemoveButton } from "./Buttons";
 
 const EditableTask = ({ id, title, description }: ITask) => {
   const [_, dispatch] = useContext(TasksContext);
@@ -11,50 +15,66 @@ const EditableTask = ({ id, title, description }: ITask) => {
     dispatch(TaskActions.Update(id, { editing: false }));
   });
 
-  const removeClicked = () => {
+  const deleteTask = () => {
     dispatch(TaskActions.Delete(id));
   };
 
-  const updateTitle = (event: any) => {
-    dispatch(TaskActions.Update(id, { title: event.target.value }))
+  const updateTitle = (event: FocusEvent) => {
+    dispatch(TaskActions.Update(
+        id, { title: (event.target as HTMLInputElement).value }
+    ))
   };
 
-  const updateDescription = (event: any) => {
-    dispatch(TaskActions.Update(id, { description: event.target.value }));
+  const updateDescription = (event: FocusEvent) => {
+    dispatch(TaskActions.Update(
+      id, { description: (event.target as HTMLInputElement).value }
+    ));
   };
-
 
   return html`
-  <li class="task editable-task task-${id}" ref=${outsideRef}>
-    <div class="task__bar">
-      <div class="task__drag-surface"></div>
-      <button class="task__remove-button" onClick=${removeClicked}>
-        ❌︎
-      </button>
-    </div>
-    <input
-      value=${title}
-      onBlur=${updateTitle}
-      class="task__title h3"
-    />
-    <textarea
-      value=${description}
-      onBlur=${updateDescription}
-      class="task__description"
-    />
-  </li>`;
+    <li class="task editable-task task-${id}" ref=${outsideRef} onDrop=$>
+      <${ActionBar}>
+        <${RemoveButton} onClick=${deleteTask} />
+      </>
+      <input
+        value=${title}
+        onBlur=${updateTitle}
+        class="task__title h3"
+      />
+      <textarea
+        value=${description}
+        onBlur=${updateDescription}
+        class="task__description"
+      />
+    </li>
+  `;
 };
 
-const ViewTask = ({ id, title, description }: any) => {
+type IViewTask = ITask & { index: number };
+
+const ViewTask = ({ id, index, columnId, title, description }: IViewTask) => {
   const [_, dispatch] = useContext(TasksContext);
 
   const makeEditable = () => {
     dispatch(TaskActions.Update(id, { editing: true }));
   };
 
-  const setDragData = (event: any) => {
+  const setDragData = (event: DragEvent) => {
     event.dataTransfer.clearData();
     event.dataTransfer.setData("text/plain", id);
+  };
+
+  const testOnDrop = (e: DragEvent) => {
+    e.stopPropagation();
+
+    const taskId = e.dataTransfer.getData("text/plain");
+
+    dispatch(TaskActions.Move(taskId, columnId, index));
+  };
+
+  const testOnDragOver = (e: DragEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
   };
 
   return html`
@@ -62,6 +82,8 @@ const ViewTask = ({ id, title, description }: any) => {
       class="task view-task task-${id}" onClick=${makeEditable}
       draggable="true"
       onDragStart=${setDragData}
+      onDragOver=${testOnDragOver}
+      onDrop=${testOnDrop}
     >
       <h3 class="task__title">${title}</h3>
       <small class="task__description">${description}</small>

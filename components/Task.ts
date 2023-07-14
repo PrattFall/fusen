@@ -1,7 +1,7 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { useOutsideClick } from "../lib";
+import { ignoreDragEvent, useOutsideClick } from "../lib";
 import { ITask } from "../domain";
 
 import { TaskActions, TasksContext } from "../contexts/Task";
@@ -21,8 +21,8 @@ const EditableTask = ({ id, title, description }: ITask) => {
 
   const updateTitle = (event: FocusEvent) => {
     dispatch(TaskActions.Update(
-        id, { title: (event.target as HTMLInputElement).value }
-    ))
+      id, { title: (event.target as HTMLInputElement).value }
+    ));
   };
 
   const updateDescription = (event: FocusEvent) => {
@@ -64,7 +64,7 @@ const ViewTask = ({ id, index, columnId, title, description }: IViewTask) => {
     event.dataTransfer.setData("text/plain", id);
   };
 
-  const testOnDrop = (e: DragEvent) => {
+  const reorder = (e: DragEvent) => {
     e.stopPropagation();
 
     const taskId = e.dataTransfer.getData("text/plain");
@@ -72,18 +72,13 @@ const ViewTask = ({ id, index, columnId, title, description }: IViewTask) => {
     dispatch(TaskActions.Move(taskId, columnId, index));
   };
 
-  const testOnDragOver = (e: DragEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
   return html`
     <li
       class="task view-task task-${id}" onClick=${makeEditable}
       draggable="true"
       onDragStart=${setDragData}
-      onDragOver=${testOnDragOver}
-      onDrop=${testOnDrop}
+      onDragOver=${ignoreDragEvent}
+      onDrop=${reorder}
     >
       <h3 class="task__title">${title}</h3>
       <small class="task__description">${description}</small>

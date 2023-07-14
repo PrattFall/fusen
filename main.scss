@@ -12,7 +12,7 @@
   --color-base-text: #eee;
 
   --color-column-bg: #444;
-  --color-column-text: #fff;
+  --color-column-text: var(--color-base-text);
 
   --color-task-bg: #{rgba(#000, 0)};
   --color-task-border: #aaa;
@@ -20,7 +20,7 @@
 
   --color-input-border: #aaa;
   --color-input-border--focused: var(--color-main);
-  --color-input-bg: rgba(#fff, 0.1);
+  --color-input-bg: #{rgba(#fff, 0.02)};
 
   --color-button-bg: var(--color-main);
   --color-button-border: var(--color-main);
@@ -87,9 +87,22 @@ input, textarea {
   padding: 0;
 
   &:focus {
-    outline: none;
     border-bottom: 1px solid var(--color-input-border--focused);
+    outline: none;
   }
+}
+
+.site-header {
+  background-color: rgba(purple, 0.15);
+  display: flex;
+}
+
+.site-logo {
+  margin: space() space(2);
+}
+
+.flex-filler {
+  flex-grow: 1;
 }
 
 .action-bar {
@@ -117,6 +130,7 @@ input, textarea {
   padding-bottom: space(2);
 
   &__title {
+    display: block;
     margin: space(2);
   }
 }
@@ -162,8 +176,8 @@ input, textarea {
 
   &__title,
   &__description {
-    margin: space() space(2);
     display: block;
+    margin: space() space(2);
   }
 
   &__remove-button {
@@ -184,6 +198,7 @@ input, textarea {
   &__title,
   &__description {
     display: block;
+    margin: space() space(2);
   }
 
   &.view-task {

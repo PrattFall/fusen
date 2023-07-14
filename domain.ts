@@ -115,4 +115,38 @@ export type IColumnOperation =
 export type IBoard = {
   id: BoardId,
   title: string,
+  editing: boolean
 };
+
+export enum BoardOperationType {
+  Init,
+  New,
+  Update,
+  Delete
+}
+
+export type IInitBoardOperation = {
+  type: BoardOperationType.Init,
+  boards: IBoard[],
+}
+
+export type INewBoardOperation = {
+  type: BoardOperationType.New,
+}
+
+export type IUpdateBoardOperation = {
+  type: BoardOperationType.Update,
+  id: BoardId,
+  values: Partial<IBoard>,
+}
+
+export type IDeleteBoardOperation = {
+  type: BoardOperationType.Delete,
+  id: BoardId,
+}
+
+export type IBoardOperation =
+  INewBoardOperation
+  | IUpdateBoardOperation
+  | IDeleteBoardOperation
+  | IInitBoardOperation

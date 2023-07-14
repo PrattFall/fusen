@@ -1,10 +1,6 @@
 import { useEffect, useRef, MutableRef } from "preact/hooks";
 import { ITask, ColumnId, TaskId } from "./domain";
 
-export const inRect = (x: number, y: number, rect: DOMRect): boolean =>
-  x >= rect.left && x < rect.right &&
-  y <= rect.bottom && y > rect.top;
-
 export const repositionTask = (
   tasks: ITask[],
   taskId: TaskId,
@@ -15,39 +11,32 @@ export const repositionTask = (
   const others = tasks.filter(t => t.id !== taskId);
   let inColumn = others.filter(t => t.columnId === columnId);
 
+  // Make sure to add it to the column even if the column is empty
   if (inColumn.length === 0) {
-    return tasks.map((t: ITask) => {
-      if (t.id === taskId) {
-        return { ...t, columnId, position: 0 };
-      }
-
-      return t;
-    });
+    return tasks.map((t: ITask) =>
+      t.id === taskId ? ({ ...t, columnId, position: 0 }): t
+    );
   }
 
-  inColumn
-    .splice(position, 0, { ...task, columnId, position });
+  inColumn.splice(position, 0, { ...task, columnId, position });
 
-  const colMap =
-    inColumn
-      .map((t: ITask, i) => ({ ...t, position: i }))
-      .reduce(
-        (acc: { [key: TaskId]: ITask }, x: ITask) =>
-          ({ ...acc, [x.id]: x }),
-        {}
-      );
+  const colMap = inColumn
+    .map((t: ITask, i) => ({ ...t, position: i }))
+    .reduce(
+      (acc: { [key: TaskId]: ITask }, x: ITask) =>
+        ({ ...acc, [x.id]: x }),
+      {}
+    );
 
-
-  return tasks.map((t: ITask) => {
-    if (t.id in colMap) {
-      return colMap[t.id];
-    }
-
-    return t;
-  });
+  return tasks.map((t: ITask) => t.id in colMap ? colMap[t.id] : t);
 };
 
-export const useOutsideClick = (callback: any): MutableRef<HTMLElement | null> => {
+export const inRect = (x: number, y: number, rect: DOMRect): boolean =>
+  x >= rect.left && x < rect.right &&
+  y <= rect.bottom && y > rect.top;
+
+export const useOutsideClick =
+  (callback: any): MutableRef<HTMLElement | null> => {
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -73,3 +62,8 @@ export const makeUniqueId = (): string =>
   window.crypto
     .getRandomValues(new Uint32Array(1))[0]
     .toString(16);
+
+export const ignoreDragEvent = (e: DragEvent) => {
+  e.stopPropagation();
+  e.preventDefault();
+};

@@ -83,7 +83,7 @@ export const TasksProvider = (props: any) => {
 
   useEffect(() => {
     const tasks = JSON.parse(window.localStorage.getItem("tasks"));
-    dispatchTasks(TaskActions.Init(tasks));
+    dispatchTasks(TaskActions.Init(tasks || []));
   }, []);
 
   useEffect(() => {

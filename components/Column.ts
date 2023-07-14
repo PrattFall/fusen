@@ -1,7 +1,7 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { IColumn, IColumnOperation, ITask } from "../domain";
+import { ColumnId, IColumn, IColumnOperation, ITask } from "../domain";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
 import { TaskActions, TasksContext } from "../contexts/Task";
@@ -9,8 +9,10 @@ import { TaskActions, TasksContext } from "../contexts/Task";
 import { Task } from "./Task";
 import { ActionBar } from "./ActionBar";
 import { AddButton, RemoveButton } from "./Buttons";
+import { ignoreDragEvent } from "../lib";
 
-type IColumnUpdateable = IColumn & { dispatch: (action: IColumnOperation) => void };
+type IColumnUpdateable =
+  IColumn & { dispatch: (action: IColumnOperation) => void };
 
 const ColumnTitle = ({ id, title, editing, dispatch }: IColumnUpdateable) => {
   const updateTitle = (event: FocusEvent) => {
@@ -43,6 +45,20 @@ const ColumnTitle = ({ id, title, editing, dispatch }: IColumnUpdateable) => {
   `;
 };
 
+const tasksForColumn = (tasks: ITask[], columnId: ColumnId) => {
+  const taskOrder = (a: ITask, b: ITask) => {
+    if (a.position < b.position) return -1;
+    if (a.position > b.position) return 1;
+    else return 0;
+  }
+
+  return [...tasks.filter((t: ITask) => t.columnId === columnId)]
+    .sort(taskOrder)
+    .map((t: ITask, i: number) =>
+      html`<${Task} key=${t.id} index=${i} ...${t} />`
+    );
+}
+
 export const Column = ({ id, title, editing }: IColumn) => {
   const [tasks, dispatchTasks] = useContext(TasksContext);
   const [_, dispatch] = useContext(ColumnsContext);
@@ -51,30 +67,12 @@ export const Column = ({ id, title, editing }: IColumn) => {
     dispatchTasks(TaskActions.New(id));
   };
 
-  const taskOrder = (a: ITask, b: ITask) => {
-    if(a.position < b.position) return -1;
-    if(a.position > b.position) return 1;
-    else return 0;
-  }
+  const filteredTasks = tasksForColumn(tasks, id);
 
-  const filteredTasks =
-    [
-      ...tasks
-      .filter((t: ITask) => t.columnId === id)
-    ].sort(taskOrder)
-    .map((t: ITask, i: number) =>
-       html`<${Task} key=${t.id} index=${i} ...${t} />`
-    );
-
-  const testOnDrop = (e: DragEvent) => {
+  const moveTaskToColumn = (e: DragEvent) => {
     const taskId = e.dataTransfer.getData("text/plain");
 
     dispatchTasks(TaskActions.Move(taskId, id, 0));
-  };
-
-  const testOnDragOver = (e: DragEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
   };
 
   const deleteColumn = () => {
@@ -82,8 +80,9 @@ export const Column = ({ id, title, editing }: IColumn) => {
   };
 
   return html`
-    <li class="column" onDrop=${testOnDrop} onDragOver=${testOnDragOver}>
+    <li class="column" onDrop=${moveTaskToColumn} onDragOver=${ignoreDragEvent}>
       <${ActionBar}>
+        <div class="flex-filler" />
         <${RemoveButton} onClick=${deleteColumn} />
       </>
       <${ColumnTitle}
@@ -93,9 +92,7 @@ export const Column = ({ id, title, editing }: IColumn) => {
         dispatch=${dispatch}
       />
       <${AddButton} onClick=${newTask}>Add Task</>
-      <ul class="column__tasks">
-        ${filteredTasks}
-      </ul>
+      <ul class="column__tasks">${filteredTasks}</ul>
     </li>
   `;
 };

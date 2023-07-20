@@ -1,57 +1,43 @@
-import { useState, useContext } from "preact/hooks";
+import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { IBoard, IBoardOperation } from "../domain";
+import { IBoard, IColumn } from "../domain";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
 
 import { AddButton } from "./Buttons";
 import { Column } from "./Column";
 import { BoardActions, BoardsContext } from "../contexts/Board";
-
-export const BoardTitle = ({ id, title, editing }: IBoard) => {
-  const [_, dispatch] = useContext(BoardsContext);
-
-  const makeEditable = () => {
-    dispatch(BoardActions.Update(id, { editing: true }));
-  };
-
-  const updateTitle = (event: FocusEvent) => {
-    dispatch(BoardActions.Update(id, {
-      editing: false,
-      title: (event.target as HTMLInputElement).value
-    }));
-  };
-
-  return editing
-    ? html`
-      <input
-        autoFocus
-        type="text"
-        class="board__title h1"
-        value=${title}
-        onBlur=${updateTitle} />
-    `
-    : html`
-      <h1 class="board__title" onClick=${makeEditable}>
-        ${title}
-      </h1>
-    `;
-};
+import { EditableInput } from "./EditableInput";
 
 export const Board = (board: IBoard) => {
   const [columns, dispatchColumns] = useContext(ColumnsContext);
+  const [_, dispatch] = useContext(BoardsContext);
 
   const addColumn = () => {
     dispatchColumns(ColumnActions.New(board.id));
   };
 
+  const updateBoardTitle = (event: FocusEvent) => {
+    dispatch(BoardActions.Update(board.id, {
+      title: (event.target as HTMLInputElement).value
+    }));
+  };
+
+  const filteredColumns = columns.filter((c: IColumn) =>
+    c.boardId === board.id
+  );
+
   return html`
     <div class="board">
-      <${BoardTitle} ...${board} />
+      <${EditableInput}
+        class="board__title h1"
+        view="h1"
+        onInput=${updateBoardTitle}
+        value=${board.title} />
       <${AddButton} onClick=${addColumn}>Add Column</>
       <ul class="board__columns">
-        ${columns.map(c =>
+        ${filteredColumns.map(c =>
           html`<${Column} key=${c.id} ...${c} />`
         )}
       </ul>

@@ -20,21 +20,34 @@
 
   --color-input-border: #aaa;
   --color-input-border--focused: var(--color-main);
-  --color-input-bg: #{rgba(#fff, 0.02)};
+  --color-input-bg: #{rgba(#fff, .02)};
 
   --color-button-bg: var(--color-main);
+  --color-button-bg-hover: teal;
   --color-button-border: var(--color-main);
   --color-button-text: #fff;
 
-  --color-drag-1: #{rgba(#000, 0.1)};
-  --color-drag-2: #{rgba(#000, 0.25)};
+  --color-drag-1: #{rgba(#000, .1)};
+  --color-drag-2: #{rgba(#000, .25)};
   --angle-drag: 30deg;
+
+  --animation-bounce: cubic-bezier(.175, .885, .32, 1.275);
 }
 
-@mixin listless {
+%listless {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+%row {
+  display: flex;
+  flex-direction: row;
+}
+
+%column {
+  display: flex;
+  flex-direction: column;
 }
 
 @function space($multiplier: 1) {
@@ -79,9 +92,9 @@ input, button, textarea, label {
 }
 
 input, textarea {
-  border: none;
-  border-bottom: 1px solid var(--color-input-border);
   background-color: var(--color-input-bg);
+  border-bottom: 1px solid var(--color-input-border);
+  border: none; // reset border
   color: var(--color-column-text);
   margin-bottom: space();
   padding: 0;
@@ -93,8 +106,10 @@ input, textarea {
 }
 
 .site-header {
-  background-color: rgba(purple, 0.15);
-  display: flex;
+  @extend %row;
+
+  align-items: center;
+  background-color: rgba(purple, .15);
 }
 
 .site-logo {
@@ -106,10 +121,10 @@ input, textarea {
 }
 
 .action-bar {
-  @include listless;
+  @extend %listless;
+  @extend %row;
 
-  display: flex;
-  flex-direction: row;
+  align-items: center;
   padding: space();
 
   &.draggable {
@@ -130,6 +145,7 @@ input, textarea {
   padding-bottom: space(2);
 
   &__title {
+    cursor: pointer;
     display: block;
     margin: space(2);
   }
@@ -137,7 +153,7 @@ input, textarea {
 
 .board__columns,
 .column__tasks {
-  @include listless;
+  @extend %listless;
 
   display: flex;
   flex-wrap: nowrap;
@@ -154,17 +170,18 @@ input, textarea {
 }
 
 .column {
+  @extend %column;
+
   background-color: var(--color-column-bg);
   border-radius: 3px;
-  box-shadow: 0px 2px 5px rgba(#000, 0.1);
+  box-shadow: 0px 2px 5px rgba(#000, .1);
   color: var(--color-column-text);
-  display: flex;
-  flex-direction: column;
   min-width: var(--column-size);
   width: var(--column-size);
 
   &__tasks {
-    flex-direction: column;
+    @extend %column;
+
     gap: space();
   }
 }
@@ -202,43 +219,93 @@ input, textarea {
   }
 
   &.view-task {
-    animation: pop-in .2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: pop-in .2s var(--animation-bounce);
     cursor: pointer;
     transition: background-color .3s ease-in-out;
 
     &:hover {
-      background-color: rgba(purple, 0.1);
+      background-color: rgba(purple, .1);
       transition: background-color .1s ease-in-out;
     }
   }
 
   &.editable-task {
+    @extend %column;
+
     border-color: var(--color-task-border--editing);
-    display: flex;
-    flex-direction: column;
     padding-bottom: space(2);
   }
 }
-
 
 button,
 .button {
   border-radius: 3px;
   cursor: pointer;
-  font-weight: bold;
   font-size: var(--base-font-size);
-  padding: space(0.5) space();
+  font-weight: bold;
+  padding: space(.5) space();
 }
 
 .add-button {
+  @extend %row;
+
+  align-items: center;
   background-color: var(--color-button-bg);
-  border: 1px solid var(--color-button-border);
+  border: 0px solid var(--color-button-border);
   color: var(--color-button-text);
-  margin: 0 space(2) space(2);
+  margin: space(2);
+  padding: 0;
+  transition: background-color .5s;
+
+  &:hover {
+    background-color: var(--color-button-bg-hover);
+    transition: background-color .2s;
+  }
+
+  &__plus {
+    background-color: rgba(#000, .2);
+    padding: space(.5) space(1);
+  }
+
+  &__content {
+    padding: space(.5) space(1);
+  }
 }
 
 .remove-button {
   background-color: transparent;
   border: 1px solid var(--color-button-border);
   color: var(--color-button-text);
+}
+
+.board-list {
+  @extend %column;
+
+  cursor: pointer;
+  position: relative;
+  width: 300px;
+
+  &__active {
+    padding: space(1) space(2);
+  }
+
+  &:focus {
+    .board-list__dropdown {
+      @extend %column;
+    }
+  }
+
+  &__dropdown {
+    @extend %listless;
+    display: none;
+    width: 100%;
+    position: absolute;
+    top: space(6);
+    left: 0;
+  }
+
+  &__item {
+    padding: space(1) space(2);
+    background-color: red;
+  }
 }

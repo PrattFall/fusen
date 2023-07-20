@@ -5,7 +5,7 @@ import { html } from "htm/preact";
 import { makeUniqueId } from "../lib";
 import { BoardId, BoardOperationType, IBoard, IBoardOperation, IDeleteBoardOperation, IInitBoardOperation, INewBoardOperation, IUpdateBoardOperation } from "../domain";
 
-const newBoard = (): IBoard => ({
+export const newBoard = (): IBoard => ({
   id: makeUniqueId(),
   title: "New Board",
   editing: false,
@@ -58,6 +58,7 @@ export const BoardsProvider = (props: any) => {
 
   useEffect(() => {
     const boards = JSON.parse(window.localStorage.getItem("boards"));
+
     dispatchBoards(BoardActions.Init(
       (!!boards && boards.length > 0 ? boards : [newBoard()])
     ));

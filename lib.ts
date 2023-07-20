@@ -9,6 +9,7 @@ export const repositionTask = (
 ): ITask[] => {
   const task = tasks.find(t => t.id === taskId);
   const others = tasks.filter(t => t.id !== taskId);
+
   let inColumn = others.filter(t => t.columnId === columnId);
 
   // Make sure to add it to the column even if the column is empty
@@ -31,12 +32,14 @@ export const repositionTask = (
   return tasks.map((t: ITask) => t.id in colMap ? colMap[t.id] : t);
 };
 
-export const inRect = (x: number, y: number, rect: DOMRect): boolean =>
-  x >= rect.left && x < rect.right &&
-  y <= rect.bottom && y > rect.top;
 
 export const useOutsideClick =
   (callback: any): MutableRef<HTMLElement | null> => {
+
+  const inRect = (x: number, y: number, rect: DOMRect): boolean =>
+    x >= rect.left && x < rect.right &&
+    y <= rect.bottom && y > rect.top;
+
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {

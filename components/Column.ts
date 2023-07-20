@@ -1,49 +1,16 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { ColumnId, IColumn, IColumnOperation, ITask } from "../domain";
+import { ColumnId, IColumn, ITask } from "../domain";
+import { ignoreDragEvent } from "../lib";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
 import { TaskActions, TasksContext } from "../contexts/Task";
 
-import { Task } from "./Task";
 import { ActionBar } from "./ActionBar";
 import { AddButton, RemoveButton } from "./Buttons";
-import { ignoreDragEvent } from "../lib";
-
-type IColumnUpdateable =
-  IColumn & { dispatch: (action: IColumnOperation) => void };
-
-const ColumnTitle = ({ id, title, editing, dispatch }: IColumnUpdateable) => {
-  const updateTitle = (event: FocusEvent) => {
-    dispatch(ColumnActions.Update(id, {
-      title: (event.target as HTMLInputElement).value,
-      editing: false
-    }));
-  }
-
-  const setEditing = () => {
-    dispatch(ColumnActions.Update(id, { editing: true }));
-  };
-
-  if (editing) {
-    return html`
-      <input
-        autoFocus
-        type="text"
-        onBlur=${updateTitle}
-        class="column__title h2"
-        value=${title}
-      />
-    `;
-  }
-
-  return html`
-    <h2 class="column__title" onClick=${setEditing}>
-      ${title}
-    </h2>
-  `;
-};
+import { EditableInput } from "./EditableInput";
+import { Task } from "./Task";
 
 const tasksForColumn = (tasks: ITask[], columnId: ColumnId) => {
   const taskOrder = (a: ITask, b: ITask) => {
@@ -59,15 +26,13 @@ const tasksForColumn = (tasks: ITask[], columnId: ColumnId) => {
     );
 }
 
-export const Column = ({ id, title, editing }: IColumn) => {
+export const Column = ({ id, title }: IColumn) => {
   const [tasks, dispatchTasks] = useContext(TasksContext);
   const [_, dispatch] = useContext(ColumnsContext);
 
-  const newTask = () => {
+  const createNewTask = () => {
     dispatchTasks(TaskActions.New(id));
   };
-
-  const filteredTasks = tasksForColumn(tasks, id);
 
   const moveTaskToColumn = (e: DragEvent) => {
     const taskId = e.dataTransfer.getData("text/plain");
@@ -79,19 +44,26 @@ export const Column = ({ id, title, editing }: IColumn) => {
     dispatch(ColumnActions.Delete(id));
   };
 
+  const updateTitle = (event: FocusEvent) => {
+    dispatch(ColumnActions.Update(id, {
+      title: (event.target as HTMLInputElement).value
+    }));
+  }
+
+  const filteredTasks = tasksForColumn(tasks, id);
+
   return html`
     <li class="column" onDrop=${moveTaskToColumn} onDragOver=${ignoreDragEvent}>
       <${ActionBar}>
         <div class="flex-filler" />
         <${RemoveButton} onClick=${deleteColumn} />
       </>
-      <${ColumnTitle}
-        id=${id}
-        title=${title}
-        editing=${editing}
-        dispatch=${dispatch}
-      />
-      <${AddButton} onClick=${newTask}>Add Task</>
+      <${EditableInput}
+        class="column__title h2"
+        view="h2"
+        onInput=${updateTitle}
+        value=${title} />
+      <${AddButton} onClick=${createNewTask}>Add Task</>
       <ul class="column__tasks">${filteredTasks}</ul>
     </li>
   `;

@@ -6,7 +6,7 @@ import { BoardActions, BoardsContext } from "../contexts/Board";
 
 import { AddButton } from "./Buttons";
 
-import { BoardId, IBoard } from "../domain";
+import { Board } from "../domain/index";
 
 export const BoardList = () => {
   const [boards, dispatch] = useContext(BoardsContext);
@@ -16,12 +16,12 @@ export const BoardList = () => {
     dispatch(BoardActions.New());
   }
 
-  const changeBoard = (id: BoardId) => () => {
+  const changeBoard = (id: Board.Id) => () => {
     dispatchApp(AppActions.SetBoard(id));
   }
 
-  const activeBoard = boards.find((b: IBoard) => b.id === app.board);
-  const otherBoards = boards.filter((b: IBoard) => b.id !== app.board);
+  const activeBoard = boards.find((b: Board.T) => b.id === app.board);
+  const otherBoards = boards.filter((b: Board.T) => b.id !== app.board);
 
   return html`
     <div class="board-list" tabindex="-1">

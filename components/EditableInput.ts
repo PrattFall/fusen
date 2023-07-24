@@ -1,5 +1,6 @@
 import { html } from "htm/preact";
 import {  useState } from "preact/hooks";
+import { useOutsideClick } from "../lib";
 
 interface EditableInputProps {
   class: string;
@@ -16,22 +17,24 @@ export const EditableInput = ({
 }: EditableInputProps) => {
   const [editing, setEditing] = useState(false);
 
-  const changeEditingMode = (val: boolean) => () => {
-    setEditing(val);
-  }
+  const makeEditable = () => setEditing(true);
+
+  const outsideRef = useOutsideClick(() => {
+    setEditing(false);
+  });
 
   return editing
     ? html`
       <input
+        ref=${outsideRef}
         autoFocus
         type="text"
         class=${className}
-        onBlur=${changeEditingMode(false)}
         onInput=${onInput}
         value=${value} />
     `
     : html`
-      <${view} class=${className} onClick=${changeEditingMode(true)}>
+      <${view} class=${className} onClick=${makeEditable}>
         ${value}
       </>
     `;

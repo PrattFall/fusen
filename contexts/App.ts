@@ -2,51 +2,22 @@ import { createContext } from "preact";
 import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { BoardId } from "../domain";
+import { App, Board } from "../domain/index";
 
-interface IApp {
-  board?: BoardId
-}
-
-export enum AppOperationType {
-  Init,
-  New,
-  SetBoard,
-}
-
-export type IInitAppOperation = {
-  type: AppOperationType.Init,
-  app: IApp,
-}
-
-export type INewAppOperation = {
-  type: AppOperationType.New,
-}
-
-export type IAppSetBoardOperation = {
-  type: AppOperationType.SetBoard,
-  board: BoardId
-}
-
-export type IAppOperation =
-  IInitAppOperation
-  | INewAppOperation
-  | IAppSetBoardOperation;
-
-const newApp = (): IApp => ({
+const newApp = (): App.T => ({
   board: null
 });
 
-export const AppReducer: Reducer<IApp, IAppOperation> =
-  (state: IApp, action: IAppOperation) => {
+export const AppReducer: Reducer<App.T, App.Operation> =
+  (state: App.T, action: App.Operation) => {
   switch(action.type) {
-    case AppOperationType.Init:
+    case App.OperationType.Init:
       return action.app;
 
-    case AppOperationType.New:
+    case App.OperationType.New:
       return newApp();
 
-    case AppOperationType.SetBoard:
+    case App.OperationType.SetBoard:
       return { ...state, board: action.board };
 
     default:
@@ -55,19 +26,19 @@ export const AppReducer: Reducer<IApp, IAppOperation> =
 };
 
 export const AppActions = {
-  Init: (app: IApp): IInitAppOperation => ({
-    type: AppOperationType.Init,
+  Init: (app: App.T): App.OperationInit => ({
+    type: App.OperationType.Init,
     app
   }),
-  New: (): INewAppOperation => ({ type: AppOperationType.New }),
-  SetBoard: (board: BoardId) => ({
-    type: AppOperationType.SetBoard,
+  New: (): App.OperationNew => ({ type: App.OperationType.New }),
+  SetBoard: (board: Board.Id) => ({
+    type: App.OperationType.SetBoard,
     board
   })
 };
 
 export const AppContext =
-  createContext<[IApp, (action: IAppOperation) => void]>([newApp(), null]);
+  createContext<[App.T, (action: App.Operation) => void]>([newApp(), null]);
 
 export const AppProvider = (props: any) => {
   const [app, dispatchApp] = useReducer(AppReducer, newApp());

@@ -1,6 +1,7 @@
 :root {
   --spacing-base: 8px;
   --column-size: 350px;
+  --border-radius: 10px;
 
   --font-family: Poppins, sans-serif;
   --base-font-size: 18px;
@@ -8,15 +9,20 @@
 
   --color-main: #{lighten(blue, 20%)};
 
-  --color-base-bg: #222;
-  --color-base-text: #eee;
+  --color-base-bg--light: #eee;
+  --color-base-bg--dark: #222;
 
-  --color-column-bg: #444;
-  --color-column-text: var(--color-base-text);
+  --color-base-text--light: #333;
+  --color-base-text--dark: #eee;
 
-  --color-task-bg: #{rgba(#000, 0)};
-  --color-task-border: #aaa;
-  --color-task-border--editing: var(--color-main);
+  --color-action-bar--light: #{rgba(#000, 0.1)};
+  --color-action-bar--dark: #{rgba(#000, 0.2)};
+
+  --color-column-bg--light: #ccc;
+  --color-column-bg--dark: #444;
+
+  --color-task-bg--light: #{rgba(#fff, 0.3)};
+  --color-task-bg--dark: #{rgba(#000, 0.3)};
 
   --color-input-border: #aaa;
   --color-input-border--focused: var(--color-main);
@@ -24,14 +30,27 @@
 
   --color-button-bg: var(--color-main);
   --color-button-bg-hover: teal;
-  --color-button-border: var(--color-main);
   --color-button-text: #fff;
 
   --color-drag-1: #{rgba(#000, .1)};
-  --color-drag-2: #{rgba(#000, .25)};
-  --angle-drag: 30deg;
+  --color-drag-2: #{rgba(#000, .4)};
+  --angle-drag: 35deg;
 
   --animation-bounce: cubic-bezier(.175, .885, .32, 1.275);
+  --draggable-bg: #{repeating-linear-gradient(
+      var(--angle-drag),
+      var(--color-drag-1),
+      var(--color-drag-1) 2px,
+      var(--color-drag-2) 2px,
+      var(--color-drag-2) 4px,
+    )};
+
+  --color-base-bg: var(--color-base-bg--light);
+  --color-base-text: var(--color-base-text--light);
+  --color-action-bar-bg: var(--color-action-bar--light);
+  --color-column-bg: var(--color-column-bg--light);
+  --color-task-bg: var(--color-task-bg--light);
+  --color-column-text: var(--color-base-text);
 }
 
 %listless {
@@ -50,6 +69,13 @@
   flex-direction: column;
 }
 
+%fill-all {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
 @function space($multiplier: 1) {
   @return calc(var(--spacing-base) * $multiplier);
 }
@@ -61,6 +87,52 @@
 
   @return calc(var(--base-font-size) * (var(--font-ratio) * #{$multiplier}));
 }
+
+@mixin size($width, $height: $width) {
+  width: $width;
+  height: $height;
+}
+
+@mixin hover-bg($color: #fff) {
+  transition: background .5s ease-in;
+
+  &:hover {
+    background: $color;
+    transition: background .3s ease-in;
+  }
+}
+
+@mixin hover-gradient($from, $to, $position: relative) {
+  --in-speed: 0.3s ease-in;
+  --out-speed: 0.5s ease-out;
+
+  background: $from;
+  position: $position;
+  transition: background var(--out-speed);
+  z-index: 1;
+
+  &:before {
+    @extend %fill-all;
+
+    background: $to;
+    content: "";
+    opacity: 0;
+    position: absolute;
+    transition: opacity var(--out-speed);
+    z-index: -1;
+  }
+
+  &:hover {
+    background-color: rgba(#000, 0.0);
+    transition: background var(--in-speed);
+
+    &:before {
+      opacity: 1;
+      transition: opacity var(--in-speed);
+    }
+  }
+}
+
 
 @for $i from 1 through 4 {
   h#{$i}, .h#{$i} {
@@ -74,13 +146,22 @@
 }
 
 html, body {
+  @media (prefers-color-scheme: dark) {
+    --color-base-bg: var(--color-base-bg--dark);
+    --color-base-text: var(--color-base-text--dark);
+    --color-action-bar-bg: var(--color-action-bar--dark);
+    --color-column-bg: var(--color-column-bg--dark);
+    --color-task-bg: var(--color-task-bg--dark);
+
+    --color-column-text: var(--color-base-text);
+  }
+
+  @include size(100%);
   color: var(--color-base-text);
   font-family: var(--font-family);
   font-size: var(--base-font-size);
-  height: 100%;
   margin: 0;
   padding: 0;
-  width: 100%;
 }
 
 body {
@@ -93,15 +174,14 @@ input, button, textarea, label {
 
 input, textarea {
   background-color: var(--color-input-bg);
-  border-bottom: 1px solid var(--color-input-border);
   border: none; // reset border
+  border-bottom: 1px solid var(--color-input-border);
   color: var(--color-column-text);
-  margin-bottom: space();
   padding: 0;
+  outline: none;
 
   &:focus {
     border-bottom: 1px solid var(--color-input-border--focused);
-    outline: none;
   }
 }
 
@@ -125,16 +205,10 @@ input, textarea {
   @extend %row;
 
   align-items: center;
-  padding: space();
+  background-color: var(--color-action-bar-bg);
+  padding: space(.5);
 
   &.draggable {
-    background: repeating-linear-gradient(
-      var(--angle-drag),
-      var(--color-drag-1),
-      var(--color-drag-1) 2px,
-      var(--color-drag-2) 2px,
-      var(--color-drag-2) 4px,
-    );
     cursor: pointer;
   }
 }
@@ -145,6 +219,7 @@ input, textarea {
   padding-bottom: space(2);
 
   &__title {
+    border-bottom: 1px solid transparent;
     cursor: pointer;
     display: block;
     margin: space(2);
@@ -173,32 +248,20 @@ input, textarea {
   @extend %column;
 
   background-color: var(--color-column-bg);
-  border-radius: 3px;
+  border-radius: var(--border-radius);
   box-shadow: 0px 2px 5px rgba(#000, .1);
   color: var(--color-column-text);
   min-width: var(--column-size);
   width: var(--column-size);
 
+  &__title {
+    margin: space() space(2) 0;
+  }
+
   &__tasks {
     @extend %column;
 
     gap: space();
-  }
-}
-
-.task {
-  border-radius: 3px;
-  border: 1px solid var(--color-task-border);
-  overflow: auto;
-
-  &__title,
-  &__description {
-    display: block;
-    margin: space() space(2);
-  }
-
-  &__remove-button {
-    cursor: pointer;
   }
 }
 
@@ -212,6 +275,10 @@ input, textarea {
 }
 
 .task {
+  background-color: var(--color-task-bg);
+  border-radius: var(--border-radius);
+  overflow: auto;
+
   &__title,
   &__description {
     display: block;
@@ -219,27 +286,31 @@ input, textarea {
   }
 
   &.view-task {
+    @include hover-gradient(
+      var(--color-task-bg),
+      var(--draggable-bg)
+    );
+
     animation: pop-in .2s var(--animation-bounce);
     cursor: pointer;
-    transition: background-color .3s ease-in-out;
-
-    &:hover {
-      background-color: rgba(purple, .1);
-      transition: background-color .1s ease-in-out;
-    }
   }
 
   &.editable-task {
     @extend %column;
 
-    border-color: var(--color-task-border--editing);
     padding-bottom: space(2);
+  }
+
+  &__remove-button {
+    cursor: pointer;
   }
 }
 
 button,
 .button {
-  border-radius: 3px;
+  @include hover-bg(var(--color-button-bg-hover));
+
+  border-radius: var(--border-radius);
   cursor: pointer;
   font-size: var(--base-font-size);
   font-weight: bold;
@@ -247,34 +318,31 @@ button,
 }
 
 .add-button {
+  --content-padding: #{space(.5) space()};
+
   @extend %row;
 
   align-items: center;
   background-color: var(--color-button-bg);
-  border: 0px solid var(--color-button-border);
+  border: none;
   color: var(--color-button-text);
   margin: space(2);
+  overflow: hidden;
   padding: 0;
-  transition: background-color .5s;
-
-  &:hover {
-    background-color: var(--color-button-bg-hover);
-    transition: background-color .2s;
-  }
 
   &__plus {
     background-color: rgba(#000, .2);
-    padding: space(.5) space(1);
+    padding: var(--content-padding);
   }
 
   &__content {
-    padding: space(.5) space(1);
+    padding: var(--content-padding);
   }
 }
 
 .remove-button {
   background-color: transparent;
-  border: 1px solid var(--color-button-border);
+  border: none;
   color: var(--color-button-text);
 }
 
@@ -286,7 +354,7 @@ button,
   width: 300px;
 
   &__active {
-    padding: space(1) space(2);
+    padding: space() space(2);
   }
 
   &:focus {
@@ -298,14 +366,14 @@ button,
   &__dropdown {
     @extend %listless;
     display: none;
-    width: 100%;
+    left: 0;
     position: absolute;
     top: space(6);
-    left: 0;
+    width: 100%;
   }
 
   &__item {
-    padding: space(1) space(2);
     background-color: red;
+    padding: space() space(2);
   }
 }

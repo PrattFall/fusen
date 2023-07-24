@@ -3,30 +3,30 @@ import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
 import { makeUniqueId } from "../lib";
-import { BoardId, BoardOperationType, IBoard, IBoardOperation, IDeleteBoardOperation, IInitBoardOperation, INewBoardOperation, IUpdateBoardOperation } from "../domain";
+import { Board } from "../domain/index";
 
-export const newBoard = (): IBoard => ({
+export const newBoard = (): Board.T => ({
   id: makeUniqueId(),
   title: "New Board",
   editing: false,
 });
 
-export const BoardsReducer: Reducer<IBoard[], IBoardOperation> = (
-  state: IBoard[],
-  action: IBoardOperation
+export const BoardsReducer: Reducer<Board.T[], Board.Operation> = (
+  state: Board.T[],
+  action: Board.Operation
 ) => {
   switch (action.type) {
-    case BoardOperationType.Init:
+    case Board.OperationType.Init:
       return action.boards;
-    case BoardOperationType.New:
+    case Board.OperationType.New:
       return [newBoard(), ...state];
-    case BoardOperationType.Update:
+    case Board.OperationType.Update:
       return state.map(
-        (board: IBoard) => board.id === action.id
+        (board: Board.T) => board.id === action.id
           ? { ...board, ...action.values }
           : board
       );
-    case BoardOperationType.Delete:
+    case Board.OperationType.Delete:
       return state.filter(board => board.id !== action.id);
     default:
       throw new Error(`Unknown Board Operation: ${action}`);
@@ -34,24 +34,24 @@ export const BoardsReducer: Reducer<IBoard[], IBoardOperation> = (
 };
 
 export const BoardActions = {
-  Init: (boards: IBoard[]): IInitBoardOperation => ({
-    type: BoardOperationType.Init,
+  Init: (boards: Board.T[]): Board.OperationInit => ({
+    type: Board.OperationType.Init,
     boards
   }),
-  New: (): INewBoardOperation => ({ type: BoardOperationType.New }),
-  Update: (id: BoardId, values: Partial<IBoard>): IUpdateBoardOperation => ({
-    type: BoardOperationType.Update,
+  New: (): Board.OperationNew => ({ type: Board.OperationType.New }),
+  Update: (id: Board.Id, values: Partial<Board.T>): Board.OperationUpdate => ({
+    type: Board.OperationType.Update,
     id,
     values
   }),
-  Delete: (id: BoardId): IDeleteBoardOperation => ({
-    type: BoardOperationType.Delete,
+  Delete: (id: Board.Id): Board.OperationDelete => ({
+    type: Board.OperationType.Delete,
     id
   })
 };
 
 export const BoardsContext =
-  createContext<[IBoard[], (action: IBoardOperation) => void]>([[], null]);
+  createContext<[Board.T[], (action: Board.Operation) => void]>([[], null]);
 
 export const BoardsProvider = (props: any) => {
   const [boards, dispatchBoards] = useReducer(BoardsReducer, []);

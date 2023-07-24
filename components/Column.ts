@@ -1,7 +1,7 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { ColumnId, IColumn, ITask } from "../domain";
+import { Column, Task } from "../domain/index";
 import { ignoreDragEvent } from "../lib";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
@@ -10,23 +10,23 @@ import { TaskActions, TasksContext } from "../contexts/Task";
 import { ActionBar } from "./ActionBar";
 import { AddButton, RemoveButton } from "./Buttons";
 import { EditableInput } from "./EditableInput";
-import { Task } from "./Task";
+import { View as TaskView } from "./Task";
 
-const tasksForColumn = (tasks: ITask[], columnId: ColumnId) => {
-  const taskOrder = (a: ITask, b: ITask) => {
+const tasksForColumn = (tasks: Task.T[], columnId: Column.Id) => {
+  const taskOrder = (a: Task.T, b: Task.T) => {
     if (a.position < b.position) return -1;
     if (a.position > b.position) return 1;
     else return 0;
   }
 
-  return [...tasks.filter((t: ITask) => t.columnId === columnId)]
+  return [...tasks.filter((t: Task.T) => t.columnId === columnId)]
     .sort(taskOrder)
-    .map((t: ITask, i: number) =>
-      html`<${Task} key=${t.id} index=${i} ...${t} />`
+    .map((t: Task.T, i: number) =>
+      html`<${TaskView} key=${t.id} index=${i} ...${t} />`
     );
 }
 
-export const Column = ({ id, title }: IColumn) => {
+export const View = ({ id, title }: Column.T) => {
   const [tasks, dispatchTasks] = useContext(TasksContext);
   const [_, dispatch] = useContext(ColumnsContext);
 

@@ -1,12 +1,12 @@
 import { useEffect, useRef, MutableRef } from "preact/hooks";
-import { ITask, ColumnId, TaskId } from "./domain";
+import { Task, ColumnId, TaskId } from "./domain";
 
 export const repositionTask = (
-  tasks: ITask[],
+  tasks: Task[],
   taskId: TaskId,
   columnId: ColumnId,
   position: number
-): ITask[] => {
+): Task[] => {
   const task = tasks.find(t => t.id === taskId);
   const others = tasks.filter(t => t.id !== taskId);
 
@@ -14,7 +14,7 @@ export const repositionTask = (
 
   // Make sure to add it to the column even if the column is empty
   if (inColumn.length === 0) {
-    return tasks.map((t: ITask) =>
+    return tasks.map((t: Task) =>
       t.id === taskId ? ({ ...t, columnId, position: 0 }): t
     );
   }
@@ -22,14 +22,14 @@ export const repositionTask = (
   inColumn.splice(position, 0, { ...task, columnId, position });
 
   const colMap = inColumn
-    .map((t: ITask, i) => ({ ...t, position: i }))
+    .map((t: Task, i) => ({ ...t, position: i }))
     .reduce(
-      (acc: { [key: TaskId]: ITask }, x: ITask) =>
+      (acc: { [key: TaskId]: Task }, x: Task) =>
         ({ ...acc, [x.id]: x }),
       {}
     );
 
-  return tasks.map((t: ITask) => t.id in colMap ? colMap[t.id] : t);
+  return tasks.map((t: Task) => t.id in colMap ? colMap[t.id] : t);
 };
 
 

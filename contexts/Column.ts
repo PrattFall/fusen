@@ -2,22 +2,10 @@ import { createContext } from "preact";
 import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
-import {
-  BoardId,
-  ColumnId,
-  ColumnOperationType,
-  IColumn,
-  IDeleteColumnOperation,
-  IInitColumnOperation,
-  INewColumnOperation,
-  IUpdateColumnOperation,
-  IRepositionColumnOperation,
-  IColumnOperation
-} from "../domain";
-
+import { Board, Column } from "../domain/index";
 import { makeUniqueId } from "../lib";
 
-const newColumn = (boardId: BoardId, position: number): IColumn => ({
+const newColumn = (boardId: Board.Id, position: number): Column.T => ({
   id: makeUniqueId(),
   title: "Todo",
   editing: false,
@@ -25,24 +13,24 @@ const newColumn = (boardId: BoardId, position: number): IColumn => ({
   position,
 });
 
-export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (
-  state: IColumn[],
-  action: IColumnOperation
+export const ColumnsReducer: Reducer<Column.T[], Column.Operation> = (
+  state: Column.T[],
+  action: Column.Operation
 ) => {
   switch (action.type) {
-    case ColumnOperationType.Init:
+    case Column.OperationType.Init:
       return action.columns
-    case ColumnOperationType.New:
+    case Column.OperationType.New:
       return [newColumn(action.boardId, state.length), ...state];
-    case ColumnOperationType.Update:
+    case Column.OperationType.Update:
       return state.map(
-        (column: IColumn) => column.id === action.id
+        (column: Column.T) => column.id === action.id
           ? { ...column, ...action.values }
           : column
       );
-    case ColumnOperationType.Delete:
+    case Column.OperationType.Delete:
       return state.filter(column => column.id !== action.id);
-    case ColumnOperationType.Reposition:
+    case Column.OperationType.Reposition:
       return state.map(
         (t) => t.id === action.id ? { ...t, position: action.position } : t
       );
@@ -52,32 +40,32 @@ export const ColumnsReducer: Reducer<IColumn[], IColumnOperation> = (
 };
 
 export const ColumnActions = {
-  Init: (columns: IColumn[]): IInitColumnOperation => ({
-    type: ColumnOperationType.Init,
+  Init: (columns: Column.T[]): Column.OperationInit => ({
+    type: Column.OperationType.Init,
     columns
   }),
-  New: (boardId: BoardId): INewColumnOperation => ({
-    type: ColumnOperationType.New,
+  New: (boardId: Board.Id): Column.OperationNew => ({
+    type: Column.OperationType.New,
     boardId
   }),
-  Update: (id: ColumnId, values: Partial<IColumn>): IUpdateColumnOperation => ({
-    type: ColumnOperationType.Update,
+  Update: (id: Column.Id, values: Partial<Column.T>): Column.OperationUpdate => ({
+    type: Column.OperationType.Update,
     id,
     values
   }),
-  Delete: (id: ColumnId): IDeleteColumnOperation => ({
-    type: ColumnOperationType.Delete,
+  Delete: (id: Column.Id): Column.OperationDelete => ({
+    type: Column.OperationType.Delete,
     id
   }),
-  Reposition: (id: ColumnId, position: number): IRepositionColumnOperation => ({
-    type: ColumnOperationType.Reposition,
+  Reposition: (id: Column.Id, position: number): Column.OperationMove => ({
+    type: Column.OperationType.Reposition,
     id,
     position
   })
 };
 
 export const ColumnsContext =
-  createContext<[IColumn[], (action: IColumnOperation) => void]>([[], null]);
+  createContext<[Column.T[], (action: Column.Operation) => void]>([[], null]);
 
 export const ColumnsProvider = (props: any) => {
   const [columns, dispatchColumns] = useReducer(ColumnsReducer, []);

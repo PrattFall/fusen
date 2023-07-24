@@ -2,21 +2,10 @@ import { createContext } from "preact";
 import { useReducer, Reducer, useEffect } from "preact/hooks";
 import { html } from "htm/preact";
 
-import {
-  ColumnId,
-  IDeleteTaskOperation,
-  IInitTaskOperation,
-  IMoveTaskOperation,
-  INewTaskOperation,
-  ITask,
-  ITaskOperation,
-  IUpdateTaskOperation,
-  TaskId,
-  TaskOperationType,
-} from "../domain";
+import { Column, Task } from "../domain/index";
 import { makeUniqueId, repositionTask } from "../lib";
 
-const newTask = (columnId: ColumnId, position: number): ITask => ({
+const newTask = (columnId: Column.Id, position: number): Task.T => ({
   id: makeUniqueId(),
   title: "New Task",
   editing: true,
@@ -25,24 +14,24 @@ const newTask = (columnId: ColumnId, position: number): ITask => ({
   position,
 });
 
-export const TasksReducer: Reducer<ITask[], ITaskOperation> = (
-  state: ITask[],
-  action: ITaskOperation
+export const TasksReducer: Reducer<Task.T[], Task.Operation> = (
+  state: Task.T[],
+  action: Task.Operation
 ) => {
   switch (action.type) {
-    case TaskOperationType.Init:
+    case Task.OperationType.Init:
       return action.tasks;
-    case TaskOperationType.New:
+    case Task.OperationType.New:
       return [newTask(action.columnId, state.length), ...state];
-    case TaskOperationType.Update:
+    case Task.OperationType.Update:
       return state.map(
-        (task: ITask) => task.id === action.id
+        (task: Task.T) => task.id === action.id
           ? { ...task, ...action.values }
           : task
       );
-    case TaskOperationType.Delete:
+    case Task.OperationType.Delete:
       return state.filter(task => task.id !== action.id);
-    case TaskOperationType.Move:
+    case Task.OperationType.Move:
       return repositionTask(state, action.id, action.columnId, action.position)
     default:
       throw new Error(`Unknown Task Operation: ${action}`);
@@ -50,25 +39,25 @@ export const TasksReducer: Reducer<ITask[], ITaskOperation> = (
 };
 
 export const TaskActions = {
-  Init: (tasks: ITask[]): IInitTaskOperation => ({
-    type: TaskOperationType.Init,
+  Init: (tasks: Task.T[]): Task.OperationInit => ({
+    type: Task.OperationType.Init,
     tasks
   }),
-  New: (columnId: ColumnId): INewTaskOperation => ({
-    type: TaskOperationType.New,
+  New: (columnId: Column.Id): Task.OperationNew => ({
+    type: Task.OperationType.New,
     columnId
   }),
-  Update: (id: TaskId, values: Partial<ITask>): IUpdateTaskOperation => ({
-    type: TaskOperationType.Update,
+  Update: (id: Task.Id, values: Partial<Task.T>): Task.OperationUpdate => ({
+    type: Task.OperationType.Update,
     id,
     values
   }),
-  Delete: (id: TaskId): IDeleteTaskOperation => ({
-    type: TaskOperationType.Delete,
+  Delete: (id: Task.Id): Task.OperationDelete => ({
+    type: Task.OperationType.Delete,
     id
   }),
-  Move: (id: TaskId, columnId: ColumnId, position: number): IMoveTaskOperation => ({
-    type: TaskOperationType.Move,
+  Move: (id: Task.Id, columnId: Column.Id, position: number): Task.OperationMove => ({
+    type: Task.OperationType.Move,
     id,
     columnId,
     position
@@ -76,7 +65,7 @@ export const TaskActions = {
 };
 
 export const TasksContext =
-  createContext<[ITask[], (action: ITaskOperation) => void]>([[], null]);
+  createContext<[Task.T[], (action: Task.Operation) => void]>([[], null]);
 
 export const TasksProvider = (props: any) => {
   const [tasks, dispatchTasks] = useReducer(TasksReducer, []);

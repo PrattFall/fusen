@@ -1,14 +1,14 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
+import { Task } from "../domain/index";
 import { ignoreDragEvent, useOutsideClick } from "../lib";
-import { ITask } from "../domain";
 
 import { TaskActions, TasksContext } from "../contexts/Task";
 import { ActionBar } from "./ActionBar";
 import { RemoveButton } from "./Buttons";
 
-const EditableTask = ({ id, title, description }: ITask) => {
+const EditableTask = ({ id, title, description }: Task.T) => {
   const [_, dispatch] = useContext(TasksContext);
 
   const outsideRef = useOutsideClick(() => {
@@ -34,6 +34,7 @@ const EditableTask = ({ id, title, description }: ITask) => {
   return html`
     <li class="task editable-task task-${id}" ref=${outsideRef} onDrop=$>
       <${ActionBar}>
+        <div class="flex-filler" />
         <${RemoveButton} onClick=${deleteTask} />
       </>
       <input
@@ -50,7 +51,7 @@ const EditableTask = ({ id, title, description }: ITask) => {
   `;
 };
 
-type IViewTask = ITask & { index: number };
+type IViewTask = Task.T & { index: number };
 
 const ViewTask = ({ id, index, columnId, title, description }: IViewTask) => {
   const [_, dispatch] = useContext(TasksContext);
@@ -86,7 +87,7 @@ const ViewTask = ({ id, index, columnId, title, description }: IViewTask) => {
   `;
 };
 
-export const Task = (task: ITask) =>
+export const View = (task: Task.T) =>
   task.editing
     ? html`<${EditableTask} ...${task} />`
     : html`<${ViewTask} ...${task} />`;

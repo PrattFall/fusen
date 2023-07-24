@@ -1,16 +1,16 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { IBoard, IColumn } from "../domain";
+import { Board, Column } from "../domain/index";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
 
 import { AddButton } from "./Buttons";
-import { Column } from "./Column";
+import { View as ColumnView } from "./Column";
 import { BoardActions, BoardsContext } from "../contexts/Board";
 import { EditableInput } from "./EditableInput";
 
-export const Board = (board: IBoard) => {
+export const View = (board: Board.T) => {
   const [columns, dispatchColumns] = useContext(ColumnsContext);
   const [_, dispatch] = useContext(BoardsContext);
 
@@ -24,7 +24,7 @@ export const Board = (board: IBoard) => {
     }));
   };
 
-  const filteredColumns = columns.filter((c: IColumn) =>
+  const filteredColumns = columns.filter((c: Column.T) =>
     c.boardId === board.id
   );
 
@@ -38,7 +38,7 @@ export const Board = (board: IBoard) => {
       <${AddButton} onClick=${addColumn}>Add Column</>
       <ul class="board__columns">
         ${filteredColumns.map(c =>
-          html`<${Column} key=${c.id} ...${c} />`
+          html`<${ColumnView} key=${c.id} ...${c} />`
         )}
       </ul>
     </div>

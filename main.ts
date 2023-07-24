@@ -7,10 +7,10 @@ import { ColumnsProvider } from "./contexts/Column";
 import { TasksProvider } from "./contexts/Task"
 
 import { ActionBar } from "./components/ActionBar";
-import { Board } from "./components/Board";
+import { View as BoardView } from "./components/Board";
 import { BoardList } from "./components/BoardList";
 
-import { IBoard } from "./domain";
+import { Board } from "./domain";
 import { AppActions, AppContext, AppProvider } from "./contexts/App";
 
 const logStorage = () => {
@@ -21,11 +21,11 @@ const logStorage = () => {
   console.log("tasks", window.localStorage.getItem("tasks"));
 };
 
-type IContainsBoard = { board: IBoard };
+type IContainsBoard = { board: Board.T };
 
 const BoardSection = ({ board }: IContainsBoard) =>
   !!board
-    ? html`<${Board} ...${board} />`
+    ? html`<${BoardView} ...${board} />`
     : html`<h1>No Board Found</h1>`;
 
 const Page = () => {
@@ -46,10 +46,10 @@ const Page = () => {
   }, [app]);
 
   if(!app) {
-    return html`<span>test</span>`;
+    return html`<span>Wait for app to load</span>`;
   }
 
-  const board = boards.find((b: IBoard) => b.id === app.board);
+  const board = boards.find((b: Board.T) => b.id === app.board);
 
   return html`
     <header class="site-header">

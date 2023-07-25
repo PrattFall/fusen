@@ -6,8 +6,13 @@ Currently still in progress, but it has most other
 features you would expect:
 
 - A board
-- Addable columns
-- Renameable columns
+    - No, MANY boards
+    - Can't delete them yet, but soon
+- Columns
+    - Addable and Deleteable
+    - Renameable
+    - Repositionable
+    - very pretty
 - Tasks in those columns
     - You can drag tasks _between_ those columns (if you want)
     - You can even **delete** tasks
@@ -40,8 +45,11 @@ You should be able to access the board by going to `localhost:1234`
 
 - ~~Actually being able to save data to local storage~~
     - maybe a database
-- More than 1 board
-- Renaming boards
 - Tags for tasks
 - Images?
 - At least a couple changeable styles
+
+## Known Issues
+
+- Local Storage is tiny by default so no images unless I create a hostable
+version or something

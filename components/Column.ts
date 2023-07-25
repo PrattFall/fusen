@@ -1,7 +1,7 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { Column, Task } from "../domain/index";
+import { Column, Task } from "../domain";
 import { ignoreDragEvent } from "../lib";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
@@ -11,6 +11,7 @@ import { ActionBar } from "./ActionBar";
 import { AddButton, RemoveButton } from "./Buttons";
 import { EditableInput } from "./EditableInput";
 import { View as TaskView } from "./Task";
+import { DragType } from "../domain";
 
 const tasksForColumn = (tasks: Task.T[], columnId: Column.Id) => {
   const taskOrder = (a: Task.T, b: Task.T) => {
@@ -26,7 +27,7 @@ const tasksForColumn = (tasks: Task.T[], columnId: Column.Id) => {
     );
 }
 
-export const View = ({ id, title }: Column.T) => {
+export const View = ({ id, title, position }: Column.T) => {
   const [tasks, dispatchTasks] = useContext(TasksContext);
   const [_, dispatch] = useContext(ColumnsContext);
 
@@ -34,10 +35,27 @@ export const View = ({ id, title }: Column.T) => {
     dispatchTasks(TaskActions.New(id));
   };
 
-  const moveTaskToColumn = (e: DragEvent) => {
-    const taskId = e.dataTransfer.getData("text/plain");
+  const setDragData = (event: DragEvent) => {
+    event.dataTransfer.clearData();
+    event.dataTransfer.setData("text/plain", JSON.stringify({
+      type: DragType.Column, id
+    }));
+  };
 
-    dispatchTasks(TaskActions.Move(taskId, id, 0));
+  const reorder = (e: DragEvent) => {
+    e.stopPropagation();
+
+    const moveData = JSON.parse(e.dataTransfer.getData("text/plain"));
+
+    switch(moveData.type) {
+      case DragType.Task:
+        console.log("Task Dragged");
+        return dispatchTasks(TaskActions.Move(moveData.id, id, 0));
+      case DragType.Column:
+        return dispatch(ColumnActions.Reposition(moveData.id, position));
+      default:
+        return;
+    }
   };
 
   const deleteColumn = () => {
@@ -53,8 +71,8 @@ export const View = ({ id, title }: Column.T) => {
   const filteredTasks = tasksForColumn(tasks, id);
 
   return html`
-    <li class="column" onDrop=${moveTaskToColumn} onDragOver=${ignoreDragEvent}>
-      <${ActionBar}>
+    <li class="column" onDragOver=${ignoreDragEvent} onDrop=${reorder}>
+      <${ActionBar} draggable onDrop=${reorder} onDragStart=${setDragData}>
         <div class="flex-filler" />
         <${RemoveButton} onClick=${deleteColumn} />
       </>

@@ -2,8 +2,8 @@ import { createContext } from "preact";
 import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { Board, Column } from "../domain/index";
-import { makeUniqueId } from "../lib";
+import { Board, Column } from "../domain";
+import { makeUniqueId, repositionColumn } from "../lib";
 
 const newColumn = (boardId: Board.Id, position: number): Column.T => ({
   id: makeUniqueId(),
@@ -31,9 +31,7 @@ export const ColumnsReducer: Reducer<Column.T[], Column.Operation> = (
     case Column.OperationType.Delete:
       return state.filter(column => column.id !== action.id);
     case Column.OperationType.Reposition:
-      return state.map(
-        (t) => t.id === action.id ? { ...t, position: action.position } : t
-      );
+      return repositionColumn(state, action.id, action.position);
     default:
       throw new Error(`Unknown Column Operation: ${action}`);
   }

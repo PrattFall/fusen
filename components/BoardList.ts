@@ -6,7 +6,7 @@ import { BoardActions, BoardsContext } from "../contexts/Board";
 
 import { AddButton } from "./Buttons";
 
-import { Board } from "../domain/index";
+import { Board } from "../domain";
 
 export const BoardList = () => {
   const [boards, dispatch] = useContext(BoardsContext);

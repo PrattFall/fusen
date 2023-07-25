@@ -2,7 +2,7 @@ import { createContext } from "preact";
 import { useReducer, Reducer, useEffect } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { Column, Task } from "../domain/index";
+import { Column, Task } from "../domain";
 import { makeUniqueId, repositionTask } from "../lib";
 
 const newTask = (columnId: Column.Id, position: number): Task.T => ({

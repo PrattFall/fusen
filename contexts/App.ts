@@ -2,7 +2,7 @@ import { createContext } from "preact";
 import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { App, Board } from "../domain/index";
+import { App, Board } from "../domain";
 
 const newApp = (): App.T => ({
   board: null

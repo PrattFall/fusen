@@ -1,7 +1,7 @@
 import { useContext } from "preact/hooks";
 import { html } from "htm/preact";
 
-import { Task } from "../domain/index";
+import { DragType, Task } from "../domain";
 import { ignoreDragEvent, useOutsideClick } from "../lib";
 
 import { TaskActions, TasksContext } from "../contexts/Task";
@@ -32,16 +32,12 @@ const EditableTask = ({ id, title, description }: Task.T) => {
   };
 
   return html`
-    <li class="task editable-task task-${id}" ref=${outsideRef} onDrop=$>
+    <li class="task editable-task task-${id}" ref=${outsideRef}>
       <${ActionBar}>
         <div class="flex-filler" />
         <${RemoveButton} onClick=${deleteTask} />
       </>
-      <input
-        value=${title}
-        onBlur=${updateTitle}
-        class="task__title h3"
-      />
+      <input value=${title} onBlur=${updateTitle} class="task__title h3" />
       <textarea
         value=${description}
         onBlur=${updateDescription}
@@ -61,22 +57,32 @@ const ViewTask = ({ id, index, columnId, title, description }: IViewTask) => {
   };
 
   const setDragData = (event: DragEvent) => {
+    event.stopPropagation();
+
     event.dataTransfer.clearData();
-    event.dataTransfer.setData("text/plain", id);
+    event.dataTransfer.setData("text/plain", JSON.stringify({
+      type: DragType.Task, id
+    }));
   };
 
   const reorder = (e: DragEvent) => {
     e.stopPropagation();
 
-    const taskId = e.dataTransfer.getData("text/plain");
+    const moveData = JSON.parse(e.dataTransfer.getData("text/plain"));
 
-    dispatch(TaskActions.Move(taskId, columnId, index));
+    switch(moveData.type) {
+      case DragType.Task:
+        dispatch(TaskActions.Move(moveData.id, columnId, index));
+      default:
+        return;
+    }
+
   };
 
   return html`
     <li
       class="task view-task task-${id}" onClick=${makeEditable}
-      draggable="true"
+      draggable
       onDragStart=${setDragData}
       onDragOver=${ignoreDragEvent}
       onDrop=${reorder}

@@ -3,7 +3,7 @@ import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
 import { makeUniqueId } from "../lib";
-import { Board } from "../domain/index";
+import { Board } from "../domain";
 
 export const newBoard = (): Board.T => ({
   id: makeUniqueId(),

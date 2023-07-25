@@ -14,11 +14,11 @@ import { Board } from "./domain";
 import { AppActions, AppContext, AppProvider } from "./contexts/App";
 
 const logStorage = () => {
-  // window.localStorage.clear();
   console.log("app", window.localStorage.getItem("app"));
   console.log("boards", window.localStorage.getItem("boards"));
   console.log("columns", window.localStorage.getItem("columns"));
   console.log("tasks", window.localStorage.getItem("tasks"));
+  window.localStorage.clear();
 };
 
 type IContainsBoard = { board: Board.T };

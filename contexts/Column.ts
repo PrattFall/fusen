@@ -3,7 +3,7 @@ import { useEffect, useReducer, Reducer } from "preact/hooks";
 import { html } from "htm/preact";
 
 import { Board, Column } from "../domain";
-import { makeUniqueId, repositionColumn } from "../lib";
+import { makeUniqueId, reposition } from "../lib";
 
 const newColumn = (boardId: Board.Id, position: number): Column.T => ({
   id: makeUniqueId(),
@@ -31,7 +31,9 @@ export const ColumnsReducer: Reducer<Column.T[], Column.Operation> = (
     case Column.OperationType.Delete:
       return state.filter(column => column.id !== action.id);
     case Column.OperationType.Reposition:
-      return repositionColumn(state, action.id, action.position);
+      return reposition(
+        state, action.id, action.boardId, "boardId", action.position
+      );
     default:
       throw new Error(`Unknown Column Operation: ${action}`);
   }
@@ -55,9 +57,10 @@ export const ColumnActions = {
     type: Column.OperationType.Delete,
     id
   }),
-  Reposition: (id: Column.Id, position: number): Column.OperationMove => ({
+  Reposition: (id: Column.Id, boardId: Board.Id, position: number): Column.OperationMove => ({
     type: Column.OperationType.Reposition,
     id,
+    boardId,
     position
   })
 };

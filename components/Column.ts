@@ -27,7 +27,7 @@ const tasksForColumn = (tasks: Task.T[], columnId: Column.Id) => {
     );
 }
 
-export const View = ({ id, title, position }: Column.T) => {
+export const View = ({ id, boardId, title, position }: Column.T) => {
   const [tasks, dispatchTasks] = useContext(TasksContext);
   const [_, dispatch] = useContext(ColumnsContext);
 
@@ -49,10 +49,9 @@ export const View = ({ id, title, position }: Column.T) => {
 
     switch(moveData.type) {
       case DragType.Task:
-        console.log("Task Dragged");
         return dispatchTasks(TaskActions.Move(moveData.id, id, 0));
       case DragType.Column:
-        return dispatch(ColumnActions.Reposition(moveData.id, position));
+        return dispatch(ColumnActions.Reposition(moveData.id, boardId, position));
       default:
         return;
     }

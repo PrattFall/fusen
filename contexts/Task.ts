@@ -3,7 +3,7 @@ import { useReducer, Reducer, useEffect } from "preact/hooks";
 import { html } from "htm/preact";
 
 import { Column, Task } from "../domain";
-import { makeUniqueId, repositionTask } from "../lib";
+import { makeUniqueId, reposition } from "../lib";
 
 const newTask = (columnId: Column.Id, position: number): Task.T => ({
   id: makeUniqueId(),
@@ -32,7 +32,9 @@ export const TasksReducer: Reducer<Task.T[], Task.Operation> = (
     case Task.OperationType.Delete:
       return state.filter(task => task.id !== action.id);
     case Task.OperationType.Move:
-      return repositionTask(state, action.id, action.columnId, action.position)
+      return reposition(
+        state, action.id, action.columnId, "columnId", action.position
+      )
     default:
       throw new Error(`Unknown Task Operation: ${action}`);
   }

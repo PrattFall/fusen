@@ -37,6 +37,7 @@ export type OperationDelete = {
 export type OperationMove = {
   type: OperationType.Reposition,
   id: Id,
+  boardId: Board.Id,
   position: number
 }
 

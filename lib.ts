@@ -5,6 +5,12 @@ interface Repositionable<Id> {
   position: number
 }
 
+const finsert = <T>(arr: T[], v: T, pos: number): T[] => {
+  const result = [...arr];
+  result.splice(pos, 0, v);
+  return result;
+}
+
 // I did it, but I'm not required to like it
 export const reposition = <
   T extends Repositionable<Id>,
@@ -29,13 +35,18 @@ export const reposition = <
     );
   }
 
-  inContainer.splice(position, 0, {
-    ...item,
-    [containerIdKey]: containerId,
-    position
-  });
+  inContainer
+    .sort((a, b) => {
+      if(a.position < b.position) return -1;
+      if(b.position < a.position) return 1;
+      return 0;
+    }).splice(position, 0, {
+      ...item,
+      [containerIdKey]: containerId,
+      position
+    });
 
-  const containerMap = inContainer
+  const containerMap = [...inContainer]
     .map((t: T, i) => ({ ...t, position: i }))
     .reduce(
       (acc: { [key: string]: T }, x: T) =>

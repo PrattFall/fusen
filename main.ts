@@ -64,9 +64,7 @@ const Page = () => {
         BBoard
       </div>
       <div class="flex-filler"></div>
-      <${ActionBar}>
-        <${BoardList} />
-      </>
+      <${BoardList} />
     </header>
     <main>
       <${BoardSection} board=${board} />

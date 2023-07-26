@@ -5,7 +5,7 @@ import { Board, Column } from "../domain";
 
 import { ColumnActions, ColumnsContext } from "../contexts/Column";
 
-import { AddButton } from "./Buttons";
+import { AddButton, RemoveButton } from "./Buttons";
 import { View as ColumnView } from "./Column";
 import { BoardActions, BoardsContext } from "../contexts/Board";
 import { EditableInput } from "./EditableInput";
@@ -40,13 +40,20 @@ export const View = (board: Board.T) => {
 
   const filteredColumns = columnsForBoard(columns, board.id);
 
+  const deleteBoard = () => {
+    dispatch(BoardActions.Delete(board.id));
+  }
+
   return html`
     <div class="board">
-      <${EditableInput}
-        class="board__title h1"
-        view="h1"
-        onInput=${updateBoardTitle}
-        value=${board.title} />
+      <div class="board__header">
+        <${EditableInput}
+          class="board__title h1"
+          view="h1"
+          onInput=${updateBoardTitle}
+          value=${board.title} />
+        <${RemoveButton} onClick=${deleteBoard} />
+      </div>
       <${AddButton} onClick=${addColumn}>Add Column</>
       <ul class="board__columns">
         ${filteredColumns}

@@ -244,6 +244,11 @@ input, textarea {
     align-items: flex-start;
     gap: space(2);
   }
+
+  &__header {
+    @extend %row;
+    align-items: center;
+  }
 }
 
 .column {

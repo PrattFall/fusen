@@ -32,18 +32,25 @@ const Page = () => {
   const [app, dispatchApp] = useContext(AppContext);
   const [boards, dispatchBoards] = useContext(BoardsContext);
 
-  useEffect(() => {
-    if(boards.length > 0 && !app?.board) {
+  const selectFirstBoard = () => {
       dispatchApp(AppActions.Init({ board: boards[0].id }));
-    }
-  }, [boards]);
+  };
 
   useEffect(() => {
-    if(!boards || boards.length < 1) {
-      const board = newBoard();
-      dispatchBoards(BoardActions.Init([board]));
+    if(!app?.board) {
+      if(!!boards && boards.length > 0) {
+        return selectFirstBoard();
+      }
+      else {
+        const board = newBoard();
+        return dispatchBoards(BoardActions.Init([board]));
+      }
+    } else if(boards.filter(b => b.id === app.board).length === 0) {
+      if(!!boards && boards.length > 0) {
+        return selectFirstBoard();
+      }
     }
-  }, [app]);
+  }, [boards, app]);
 
   if(!app) {
     return html`<span>Wait for app to load</span>`;

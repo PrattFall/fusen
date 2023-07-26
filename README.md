@@ -7,7 +7,7 @@ features you would expect:
 
 - A board
     - No, MANY boards
-    - Can't delete them yet, but soon
+    - Deleteable and selectable
 - Columns
     - Addable and Deleteable
     - Renameable
@@ -48,6 +48,7 @@ You should be able to access the board by going to `localhost:1234`
 - Tags for tasks
 - Images?
 - At least a couple changeable styles
+- Deletion prompt
 
 ## Known Issues
 

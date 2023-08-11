@@ -27,6 +27,8 @@ features you would expect:
 - Using `preact` for views
 - Using only `preact` hooks for state management with `useContext` and `useReducer`
     - Probably a bad idea, but I wanted to try it
+    - So far hasn't been _too_ bad. Still easier to manage than Angular, but
+    that's a pretty low bar
 - Using lists in the README for brevity
 
 ## Getting Started
@@ -36,10 +38,16 @@ Clone the repository, then run:
 ```bash
 $ cd bboard
 $ pnpm i
-$ pnpx parcel index.html
+$ pnpm run start
 ```
 
 You should be able to access the board by going to `localhost:1234`
+
+To test just run:
+
+```bash
+pnpm run test
+```
 
 ## Expected Future Features
 
@@ -47,8 +55,9 @@ You should be able to access the board by going to `localhost:1234`
     - maybe a database
 - Tags for tasks
 - Images?
+    - Probably not because of localstorage. At best it could support image
+    links.
 - At least a couple changeable styles
-- Deletion prompt
 
 ## Known Issues
 

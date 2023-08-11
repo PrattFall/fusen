@@ -414,3 +414,25 @@ button,
     }
   }
 }
+
+.popup-button {
+  border: none;
+}
+
+.popup {
+  @extend %fill-all;
+  @extend %row;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(#000, 0.3);
+  position: fixed;
+
+  &__content {
+    padding: space(2) space(4);
+    background-color: var(--color-base-bg);
+  }
+
+  &__actions > .action-bar {
+    padding: space(2) space(4);
+  }
+}

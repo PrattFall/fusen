@@ -7,16 +7,32 @@ import { ignoreDragEvent, useOutsideClick } from "../lib";
 import { TaskActions, TasksContext } from "../contexts/Task";
 import { ActionBar } from "./ActionBar";
 import { RemoveButton } from "./Buttons";
+import { AppActions, AppContext } from "../contexts/App";
+import { CancelPopupButton } from "./Popup";
 
 const EditableTask = ({ id, title, description }: Task.T) => {
   const [_, dispatch] = useContext(TasksContext);
+  const [_app, dispatchApp] = useContext(AppContext);
 
   const outsideRef = useOutsideClick(() => {
     dispatch(TaskActions.Update(id, { editing: false }));
   });
 
-  const deleteTask = () => {
-    dispatch(TaskActions.Delete(id));
+  const deleteTaskPopup = () => {
+    const DeleteTaskButton = () => {
+      const deleteTask = () => {
+        dispatch(TaskActions.Delete(id));
+      };
+
+      return html`
+        <button class="popup-button" onClick=${deleteTask}>Delete</button>
+      `;
+    };
+
+    dispatchApp(AppActions.ShowPopup(
+      `Are you sure you want to delete the "${title}" task?`,
+      [DeleteTaskButton, CancelPopupButton]
+    ));
   };
 
   const updateTitle = (event: FocusEvent) => {
@@ -35,7 +51,7 @@ const EditableTask = ({ id, title, description }: Task.T) => {
     <li class="task editable-task task-${id}" ref=${outsideRef}>
       <${ActionBar}>
         <div class="flex-filler" />
-        <${RemoveButton} onClick=${deleteTask} />
+        <${RemoveButton} onClick=${deleteTaskPopup} />
       </>
       <input value=${title} onBlur=${updateTitle} class="task__title h3" />
       <textarea

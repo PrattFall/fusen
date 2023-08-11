@@ -6,7 +6,7 @@ import { BoardActions, BoardsContext, BoardsProvider, newBoard } from "./context
 import { ColumnsProvider } from "./contexts/Column";
 import { TasksProvider } from "./contexts/Task"
 
-import { ActionBar } from "./components/ActionBar";
+import { Popup } from "./components/Popup";
 import { View as BoardView } from "./components/Board";
 import { BoardList } from "./components/BoardList";
 
@@ -45,7 +45,7 @@ const Page = () => {
         const board = newBoard();
         return dispatchBoards(BoardActions.Init([board]));
       }
-    } else if(boards.filter(b => b.id === app.board).length === 0) {
+    } else if(!boards.find(b => b.id === app.board)) {
       if(!!boards && boards.length > 0) {
         return selectFirstBoard();
       }
@@ -68,6 +68,7 @@ const Page = () => {
     </header>
     <main>
       <${BoardSection} board=${board} />
+      <${Popup} />
     </main>
   `;
 };

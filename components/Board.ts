@@ -9,6 +9,8 @@ import { AddButton, RemoveButton } from "./Buttons";
 import { View as ColumnView } from "./Column";
 import { BoardActions, BoardsContext } from "../contexts/Board";
 import { EditableInput } from "./EditableInput";
+import { AppActions, AppContext } from "../contexts/App";
+import { CancelPopupButton } from "./Popup";
 
 const columnsForBoard = (columns: Column.T[], boardId: Board.Id) => {
   const columnOrder = (a: Column.T, b: Column.T) => {
@@ -26,7 +28,8 @@ const columnsForBoard = (columns: Column.T[], boardId: Board.Id) => {
 
 export const View = (board: Board.T) => {
   const [columns, dispatchColumns] = useContext(ColumnsContext);
-  const [_, dispatch] = useContext(BoardsContext);
+  const [_boards, dispatch] = useContext(BoardsContext);
+  const [_app, dispatchApp] = useContext(AppContext);
 
   const addColumn = () => {
     dispatchColumns(ColumnActions.New(board.id));
@@ -40,8 +43,21 @@ export const View = (board: Board.T) => {
 
   const filteredColumns = columnsForBoard(columns, board.id);
 
-  const deleteBoard = () => {
-    dispatch(BoardActions.Delete(board.id));
+  const DeleteBoardButton = () => {
+    const deleteBoard = () => {
+      dispatch(BoardActions.Delete(board.id));
+    };
+
+    return html`
+      <button class="popup-button" onClick=${deleteBoard}>Delete</button>
+    `;
+  };
+
+  const deleteBoardPopup = () => {
+    dispatchApp(AppActions.ShowPopup(
+      "Are you sure you want to delete this board?",
+      [DeleteBoardButton, CancelPopupButton]
+    ));
   }
 
   return html`
@@ -52,7 +68,7 @@ export const View = (board: Board.T) => {
           view="h1"
           onInput=${updateBoardTitle}
           value=${board.title} />
-        <${RemoveButton} onClick=${deleteBoard} />
+        <${RemoveButton} onClick=${deleteBoardPopup} />
       </div>
       <${AddButton} onClick=${addColumn}>Add Column</>
       <ul class="board__columns">

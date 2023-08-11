@@ -1,14 +1,17 @@
 import { useEffect, useRef, MutableRef } from "preact/hooks";
 
-interface Repositionable<Id> {
-  id: Id,
+interface HasPosition {
   position: number
 }
 
-const finsert = <T>(arr: T[], v: T, pos: number): T[] => {
-  const result = [...arr];
-  result.splice(pos, 0, v);
-  return result;
+export interface Repositionable<Id> extends HasPosition {
+  id: Id
+}
+
+const orderByPosition = (a: HasPosition, b: HasPosition): number => {
+  if (a.position < b.position) return -1;
+  if (b.position < a.position) return 1;
+  return 0;
 }
 
 // I did it, but I'm not required to like it
@@ -31,16 +34,13 @@ export const reposition = <
   // Make sure to add it to the container even if the container is empty
   if (inContainer.length === 0) {
     return items.map((t: T) =>
-      t.id === id? ({ ...t, [containerIdKey]: containerId, position: 0 }) : t
+      t.id === id ? ({ ...t, [containerIdKey]: containerId, position: 0 }) : t
     );
   }
 
   inContainer
-    .sort((a, b) => {
-      if(a.position < b.position) return -1;
-      if(b.position < a.position) return 1;
-      return 0;
-    }).splice(position, 0, {
+    .sort(orderByPosition)
+    .splice(position, 0, {
       ...item,
       [containerIdKey]: containerId,
       position
@@ -59,12 +59,11 @@ export const reposition = <
 
 export const useOutsideClick =
   (callback: any): MutableRef<HTMLElement | null> => {
-
     const inRect = (x: number, y: number, rect: DOMRect): boolean =>
       x >= rect.left && x < rect.right &&
       y <= rect.bottom && y > rect.top;
 
-    const ref = useRef<HTMLElement | null>(null);
+    const ref = useRef<HTMLElement>(null);
 
     useEffect(() => {
       const handleClick = (event: MouseEvent) => {

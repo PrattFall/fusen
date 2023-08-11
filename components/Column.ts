@@ -12,6 +12,8 @@ import { AddButton, RemoveButton } from "./Buttons";
 import { EditableInput } from "./EditableInput";
 import { View as TaskView } from "./Task";
 import { DragType } from "../domain";
+import { CancelPopupButton } from "./Popup";
+import { AppActions, AppContext } from "../contexts/App";
 
 const tasksForColumn = (tasks: Task.T[], columnId: Column.Id) => {
   const taskOrder = (a: Task.T, b: Task.T) => {
@@ -29,6 +31,7 @@ const tasksForColumn = (tasks: Task.T[], columnId: Column.Id) => {
 
 export const View = ({ id, boardId, title, position }: Column.T) => {
   const [tasks, dispatchTasks] = useContext(TasksContext);
+  const [_app, dispatchApp] = useContext(AppContext);
   const [_, dispatch] = useContext(ColumnsContext);
 
   const createNewTask = () => {
@@ -57,8 +60,21 @@ export const View = ({ id, boardId, title, position }: Column.T) => {
     }
   };
 
-  const deleteColumn = () => {
-    dispatch(ColumnActions.Delete(id));
+  const deleteColumnPopup = () => {
+    const DeleteColumnButton = () => {
+      const deleteColumn = () => {
+        dispatch(ColumnActions.Delete(id));
+      };
+
+      return html`
+        <button class="popup-button" onClick=${deleteColumn}>Delete</button>
+      `;
+    };
+
+    dispatchApp(AppActions.ShowPopup(
+      `Are you sure you want to delete the "${title}" column?`,
+      [DeleteColumnButton, CancelPopupButton]
+    ));
   };
 
   const updateTitle = (event: FocusEvent) => {
@@ -73,7 +89,7 @@ export const View = ({ id, boardId, title, position }: Column.T) => {
     <li class="column" onDragOver=${ignoreDragEvent} onDrop=${reorder}>
       <${ActionBar} draggable onDrop=${reorder} onDragStart=${setDragData}>
         <div class="flex-filler" />
-        <${RemoveButton} onClick=${deleteColumn} />
+        <${RemoveButton} onClick=${deleteColumnPopup} />
       </>
       <${EditableInput}
         class="column__title h2"

@@ -1,6 +1,8 @@
-# BBoard
+# Fusen
 
-Not a bulletin board, it's a local kanban board for personal projects!
+A local kanban board for personal projects! Fusen means 'sticky note' for
+non-weebs out there. At least that's what google translate tells me, and that's
+never steered anyone wrong before!
 
 Currently still in progress, but it has most other
 features you would expect:
@@ -51,12 +53,10 @@ pnpm run test
 
 ## Expected Future Features
 
+- Tags for tasks
 - ~~Actually being able to save data to local storage~~
     - maybe a database
-- Tags for tasks
 - Images?
-    - Probably not because of localstorage. At best it could support image
-    links.
 - At least a couple changeable styles
 
 ## Known Issues

@@ -61,7 +61,7 @@ const Page = () => {
   return html`
     <header class="site-header">
       <div class="site-logo h2" onClick=${logStorage}>
-        BBoard
+        Fusen
       </div>
       <div class="flex-filler"></div>
       <${BoardList} />
